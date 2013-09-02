@@ -27,7 +27,9 @@
          limpa
          trata-tecla
          trata-tick
-         desenha)
+         desenha
+         set-tetris-timeout
+         calc-new-timeout)
 
 ;; -> Tetris
 ;; Cria o jogo inicial.
@@ -85,12 +87,30 @@
 
 ;; Jogo -> Jogo
 ;; Função que trata um tick. Esta função é chamada 28 vezes por segundo, ela
-;; deve mover o tetra para baixo depois que uma determinada quantidade
+;; deve mover o tetra para baixo depois printf "d"que uma determinada quantidade
 ;; (TIMEOUT-PADRAO) de ticks. Se o jogador mover para baixo e fixar o
 ;; tetraminó, a contagem deve reiniciar.
+(define (set-tetris-timeout jogo newValue) 
+  (cond
+   [(empty? jogo) empty]
+   [else (struct-copy tetris jogo (timeout newValue))])) 
+
+(define (calc-new-timeout timeout) 
+  (if (>= timeout TIMEOUT-PADRAO)
+      0
+      (add1 timeout)))
+
+;; TODO! 
+;; Quando ele se encaixar quem vai checar isso
+;; é o trata-tick ou mover-abaixo?
 (define (trata-tick jogo)
   (printf "t")
-  jogo)
+  (define timeout (tetris-timeout jogo))
+  (define newTimeout (calc-new-timeout timeout))
+  (define jogoWithNewTimeout (set-tetris-timeout jogo newTimeout))
+  (if (= newTimeout 0)
+      (mover-baixo jogoWithNewTimeout)
+      jogoWithNewTimeout))
 
 ;; Tetris -> Imagem
 ;; Esta função é chamada quando o jogo precisa ser desenhado na tela. Devolve

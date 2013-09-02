@@ -70,6 +70,25 @@
 (define C2_LARGURA 5)
 (define C2_ALTURA 7)
 
+(define set-tetris-timeout-tests
+  (test-suite
+   "set-tetris-timeout"
+   (check-equal? (set-tetris-timeout empty 0) empty)
+   (check-equal? (tetris-timeout (set-tetris-timeout (make-tetris-padrao) 0)) 
+                 0)
+   (check-equal? (tetris-timeout (set-tetris-timeout (make-tetris-padrao) 19)) 
+                 19)
+   (check-equal? (tetris-timeout (set-tetris-timeout (make-tetris-padrao) 100)) 
+                 100)))
+
+(define calc-new-timeout-tests
+  (test-suite
+   "calc-new-timeout"
+   (check-equal? (calc-new-timeout 0) 1)
+   (check-equal? (calc-new-timeout 5) 6)
+   (check-equal? (calc-new-timeout 28) 0)
+   (check-equal? (calc-new-timeout 100) 0)))
+
 (define make-linha-tests
   (test-suite
    "make-linha tests"
@@ -180,4 +199,6 @@
                  lop-validas?-tests
                  lop-livres?-tests
                  fixa-tests
-                 limpa-tests)
+                 limpa-tests
+                 set-tetris-timeout-tests
+                 calc-new-timeout-tests)
