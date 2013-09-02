@@ -60,6 +60,8 @@
 ;;
 ;; Use a função key=? para comparar o tecla com os valores "right", "left, "up"
 ;; e "down".
+
+;; fazer teste
 (define (trata-tecla jogo tecla)
   (cond [(key=? tecla "right") (mover-direita jogo)]
         [(key=? tecla "left") (mover-esquerda jogo)]
@@ -68,6 +70,7 @@
         [else jogo]))
 
 ;; Move um tetramino em relação a coluna em uma unidade
+;; fazer teste
 (define (mover direcao jogo)
   (define tetra (tetris-tetra jogo))
   (define pos (tetramino-pos tetra))
@@ -75,9 +78,11 @@
   (define tetramino-nova-pos (struct-copy tetramino tetra (pos nova-pos)))
   (struct-copy tetris jogo (tetra tetramino-nova-pos)))
 
+;; fazer teste
 (define (mover-direita jogo)
   (mover add1 jogo))
 
+;; fazer teste
 (define (mover-esquerda jogo)
   (mover sub1 jogo))
 
@@ -117,12 +122,25 @@
 ;; uma imagem que representa o jogo.
 ;; Veja as funções pré-definidas rectangle, beside, above e overlay no pacote
 ;; 2htdp/image.
+
+;; fazer testes
 (define (desenha jogo)
-  (printf "d")
-  (rectangle (* (tetris-largura jogo) Q-LARGURA)
-             (* (tetris-altura jogo) Q-ALTURA)
-             "solid"
-             "black"))
+  (desenhar-campo (tetris-campo jogo) 
+                  (tetris-largura jogo) 
+                  (tetris-altura jogo)))
+
+;; fazer testes
+(define (desenhar-campo campo largura altura)
+  (cond [(empty? campo) (rectangle 0 0 "solid" "black")]
+        [else (above (desenhar-linha (first campo) largura altura)
+                     (desenhar-campo (rest campo) largura altura))]))
+
+;; fazer testes
+(define (desenhar-linha linha largura altura)
+  (cond [(empty? linha) (rectangle 0 0 "solid" "black")]
+        [else (beside (rectangle largura altura "solid" 
+                                 (list-ref CORES (first linha)))
+                      (desenhar-linha (rest linha) largura altura))]))
 
 ;; Tetramino -> Lista(Posn)
 ;; Devolve a lista de posições que t ocupa no campo considerando a rotação e a
