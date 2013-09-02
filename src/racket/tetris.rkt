@@ -59,8 +59,26 @@
 ;; Use a função key=? para comparar o tecla com os valores "right", "left, "up"
 ;; e "down".
 (define (trata-tecla jogo tecla)
-  (printf "\ntrata-tecla:~a\n" tecla)
-  jogo)
+  (cond [(key=? tecla "right") (mover-direita jogo)]
+        [(key=? tecla "left") (mover-esquerda jogo)]
+        [(key=? tecla "up") (rotacionar jogo)]
+        [(key=? tecla "down") (mover-baixo jogo)]
+        [else jogo]))
+
+;; Retorna um tetris com a coluna incrementada em uma unidade
+(define (mover-direita jogo)
+  (define tetra (tetris-tetra jogo))
+  (define pos (tetramino-pos tetra))
+  (define nova-pos (struct-copy posn pos (col (add1 (posn-col pos)))))
+  (define tetramino-nova-pos (struct-copy tetramino tetra (pos nova-pos)))
+  (struct-copy tetris jogo (tetra tetramino-nova-pos)))
+
+
+(define (mover-esquerda jogo) jogo)
+
+(define (rotacionar jogo) jogo)
+
+(define (mover-baixo jogo) jogo)
 
 ;; Jogo -> Jogo
 ;; Função que trata um tick. Esta função é chamada 28 vezes por segundo, ela
