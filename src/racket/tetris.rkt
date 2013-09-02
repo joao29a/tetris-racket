@@ -33,7 +33,10 @@
 ;; Cria o jogo inicial.
 ;; Esta função é chamada no arquivo main.rkt.
 (define (make-tetris-padrao)
-  (make-tetris LARGURA-PADRAO ALTURA-PADRAO (stream-tetraminos) TIMEOUT-PADRAO))
+  (jogar-tetris (make-tetris LARGURA-PADRAO ALTURA-PADRAO (stream-tetraminos) TIMEOUT-PADRAO)))
+
+;; Função recursiva que vai ficar atualizando toda vez o jogo
+(define (jogar-tetris jogo) jogo)
 
 ;; Jogo String -> Jogo
 ;; Esta função é chamada quando uma tecla é pressionada.
@@ -138,4 +141,9 @@
 ;; Esta função não precisa de testes.
 ;; Você tem que implementar esta função, o corpo incial deve ser descartado.
 (define (stream-tetraminos)
-  (stream-cons T empty-stream))
+  (criar-lista-tetraminos 10))
+
+(define (criar-lista-tetraminos n)
+  (cond [(zero? n) empty-stream]
+        [else (stream-cons (list-ref TETRAMINOS (random 7))
+                           (criar-lista-tetraminos (sub1 n)))]))
