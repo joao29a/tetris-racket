@@ -29,7 +29,9 @@
          trata-tick
          desenha
          set-tetris-timeout
-         calc-new-timeout)
+         calc-new-timeout
+         desenhar-campo
+         desenhar-linha)
 
 ;; -> Tetris
 ;; Cria o jogo inicial.
@@ -126,18 +128,17 @@
 ;; fazer testes
 (define (desenha jogo)
   (desenhar-campo (tetris-campo jogo) 
-                  (tetris-largura jogo) 
-                  (tetris-altura jogo)))
+                  Q-LARGURA 
+                  Q-ALTURA))
 
-;; fazer testes
 (define (desenhar-campo campo largura altura)
-  (cond [(empty? campo) (rectangle 0 0 "solid" "black")]
+  (cond [(empty? campo) BLANK]
         [else (above (desenhar-linha (first campo) largura altura)
                      (desenhar-campo (rest campo) largura altura))]))
 
-;; fazer testes
+
 (define (desenhar-linha linha largura altura)
-  (cond [(empty? linha) (rectangle 0 0 "solid" "black")]
+  (cond [(empty? linha) BLANK]
         [else (beside (rectangle largura altura "solid" 
                                  (list-ref CORES (first linha)))
                       (desenhar-linha (rest linha) largura altura))]))

@@ -2,6 +2,7 @@
 
 (require rackunit)
 (require rackunit/text-ui)
+(require 2htdp/image)
 (require "tetra-tipos.rkt")
 (require "base.rkt")
 (require "tetris.rkt")
@@ -88,6 +89,31 @@
    (check-equal? (calc-new-timeout 5) 6)
    (check-equal? (calc-new-timeout 28) 0)
    (check-equal? (calc-new-timeout 100) 0)))
+
+(define desenhar-campo-tests
+  (test-suite
+   "desenhar-campo tests"
+   (check-equal? (desenhar-campo empty Q-LARGURA Q-ALTURA) BLANK)
+   (check-equal? (desenhar-campo (list (list 0)) Q-LARGURA Q-ALTURA) 
+                 (rectangle Q-LARGURA Q-ALTURA "solid" "black"))
+   (check-equal? (desenhar-campo (list (list 1 0)
+                                       (list 0 1)) 10 10)
+                 (above (beside (rectangle 10 10 "solid" "cyan")
+                                (rectangle 10 10 "solid" "black"))
+                        (beside (rectangle 10 10 "solid" "black")
+                                (rectangle 10 10 "solid" "cyan"))))))
+
+(define desenhar-linha-tests
+  (test-suite
+   "desenhar-linha tests"
+   (check-equal? (desenhar-linha empty Q-LARGURA Q-ALTURA) BLANK)
+   (check-equal? (desenhar-linha (list 0) Q-LARGURA Q-ALTURA) 
+                 (rectangle Q-LARGURA Q-ALTURA "solid" "black"))
+   (check-equal? (desenhar-linha (list 3 1 4 5) Q-LARGURA Q-ALTURA) 
+                 (beside (rectangle Q-LARGURA Q-ALTURA "solid" "orange")
+                         (rectangle Q-LARGURA Q-ALTURA "solid" "cyan")
+                         (rectangle Q-LARGURA Q-ALTURA "solid" "yellow")
+                         (rectangle Q-LARGURA Q-ALTURA "solid" "green")))))
 
 (define make-linha-tests
   (test-suite
@@ -201,4 +227,6 @@
                  fixa-tests
                  limpa-tests
                  set-tetris-timeout-tests
-                 calc-new-timeout-tests)
+                 calc-new-timeout-tests
+                 desenhar-campo-tests
+                 desenhar-linha-tests)
