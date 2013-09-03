@@ -170,8 +170,24 @@
 ;;
 ;; Veja os testes para outros exemplos de como esta função deve funcionar.
 (define (tetramino->lista-pos t)
-  empty)
+  (define tipo (tetramino-tipo t))
+  (define tipo-rotacao (list-ref tipo (tetramino-rot t)))
+  (contar-posn-lin tipo-rotacao (tetramino-pos t) 0 0))
 
+;; Percorre todas as linhas, verificando coluna por coluna.
+(define (contar-posn-lin tipo-rotacao offset linha coluna)
+  (cond [(empty? tipo-rotacao) empty]
+        [else (append (contar-posn-col (first tipo-rotacao) offset linha coluna)
+                    (contar-posn-lin (rest tipo-rotacao) offset (add1 linha) coluna))]))
+
+;; Pega uma linha e percorre as colunas, se encontrar 1, cria uma estrutura posn
+(define (contar-posn-col lst-linha offset linha coluna)
+  (cond [(empty? lst-linha) empty]
+        [(= (first lst-linha) 1) (cons (struct-copy posn offset (lin (+ (posn-lin offset) linha)) 
+                                                                (col (+ (posn-col offset) coluna)))
+                                       (contar-posn-col (rest lst-linha) offset linha (add1 coluna)))]
+        [else (contar-posn-col (rest lst-linha) offset linha (add1 coluna))]))
+               
 ;; Lista(Posn) Natural Natural -> Boolean
 ;; Devolve verdadeiro se todas os posições de lp são válidas, isto é, estão
 ;; dentro de um campo de tamanho largura x altura. Devolve falso caso
