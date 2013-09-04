@@ -72,6 +72,7 @@
         [(key=? tecla "left") (mover-esquerda jogo)]
         [(key=? tecla "up") (rotacionar jogo)]
         [(key=? tecla "down") (mover-baixo jogo)]
+        [(key=? tecla " ") (mover-direto-para-baixo jogo)]
         [else jogo]))
 
 ;; Move um tetramino em relação a coluna em uma unidade
@@ -101,6 +102,16 @@
                                          [pos (posn (add1 (posn-lin pos))
                                                     (posn-col pos))]))
           (fixa-se-colidiu novoTetra jogo)]))
+
+(define (mover-direto-para-baixo jogo)
+  (cond
+    [(empty? jogo) empty]
+    [else 
+     (define tetra (tetris-tetra jogo))
+     (define jogoMovido (mover-baixo jogo))
+     (if (equal? (tetris-campo jogo) (tetris-campo jogoMovido))
+         (mover-direto-para-baixo jogoMovido)
+         jogo)]))
 
 (define (rotacionar jogo)
   (define tetra (tetris-tetra jogo))
