@@ -32,8 +32,6 @@
          calc-new-timeout
          desenhar-campo
          desenhar-linha
-         adicionarNaLinha
-         adicionarTetraminoNoCampo
          addEmptysLinesNoTopo
          fullLine?
          rotacionar
@@ -78,12 +76,13 @@
 
 ;; Move um tetramino em relação a coluna em uma unidade
 ;; fazer teste
+
 (define (mover-horizontal direcao jogo)
   (define tetra (tetris-tetra jogo))
   (define pos (tetramino-pos tetra))
   (define nova-pos (struct-copy posn pos (col (direcao (posn-col pos)))))
   (define tetramino-nova-pos (struct-copy tetramino tetra (pos nova-pos)))
-  (colisao tetramino-nova-pos jogo))
+  (nao-mexe-se-colidiu tetramino-nova-pos jogo))
 
 ;; fazer teste
 (define (mover-direita jogo)
@@ -93,33 +92,41 @@
 (define (mover-esquerda jogo)
   (mover-horizontal sub1 jogo))
 
-(define (mover-baixo jogo) 
-  (cond 
+(define (mover-baixo jogo)
+  (cond
     [(empty? jogo) empty]
     [else (define tetra (tetris-tetra jogo))
           (define pos (tetramino-pos tetra))
-          (define novoTetra (struct-copy tetramino tetra 
-                                         [pos (posn (add1 (posn-lin pos)) 
+          (define novoTetra (struct-copy tetramino tetra
+                                         [pos (posn (add1 (posn-lin pos))
                                                     (posn-col pos))]))
-          (colisao novoTetra jogo)]))
+          (fixa-se-colidiu novoTetra jogo)]))
 
 (define (rotacionar jogo)
   (define tetra (tetris-tetra jogo))
   (define len (length (tetramino-tipo tetra)))
   (define rot (tetramino-rot tetra))
-  (define (novo-tetra-rot x) 
+  (define (novo-tetra-rot x)
     (struct-copy tetramino tetra (rot x)))
-  (colisao (if (= rot (sub1 len))
+  (nao-mexe-se-colidiu (if (= rot (sub1 len))
                (novo-tetra-rot 0)
                (novo-tetra-rot (add1 rot)))
            jogo))
 
-(define (colisao tetra jogo)
+(define (colidiu? tetra jogo) 
   (define blocosOcupados (tetramino->lista-pos tetra))
-  (if (and (lop-validas? blocosOcupados LARGURA-PADRAO ALTURA-PADRAO)
-           (lop-livres? blocosOcupados (tetris-campo jogo)))
-      (struct-copy tetris jogo [tetra tetra])
-      (proximoTetra (fixa jogo))))
+  (not (and (lop-validas? blocosOcupados LARGURA-PADRAO ALTURA-PADRAO)
+           (lop-livres? blocosOcupados (tetris-campo jogo)))))
+
+(define (nao-mexe-se-colidiu tetra jogo) 
+  (if (colidiu? tetra jogo)
+      jogo
+      (struct-copy tetris jogo [tetra tetra])))
+
+(define (fixa-se-colidiu tetra jogo)
+  (if (colidiu? tetra jogo)
+      (proximoTetra (fixa jogo))
+      (struct-copy tetris jogo [tetra tetra])))
 
 ;; Jogo -> Jogo
 ;; Função que trata um tick. Esta função é chamada 28 vezes por segundo, ela
@@ -270,45 +277,10 @@
 ;; Preenche as posições ocupadas pelo tetraminó (que está caindo) no campo do
 ;; jogo.
 ;; Requer que tetraminó não possa ser movido para baixo.
-(define (adicionarNaLinha linha linha2 pos cor)
-  (cond 
-    [(empty? linha) empty]
-    [(empty? linha2) linha]
-    [else (define (nextNormal nextLinha2 npos) (cons (first linha) (adicionarNaLinha (rest linha) nextLinha2 npos cor)))
-          (if (= pos 0)
-              (if (= (first linha2) 0)
-                  (nextNormal (rest linha2) pos)
-                  (cons cor (adicionarNaLinha (rest linha) (rest linha2) pos cor)))
-              (nextNormal linha2 (sub1 pos)))]))
-
-(define (adicionarTetraminoNoCampo campo tetramino pos cor)
-  (define lin (posn-lin pos))
-  (define col (posn-col pos))
-  (cond 
-    [(empty? campo) empty]
-    [(empty? tetramino) campo]
-    [else (if (= lin 0)
-              (cons (adicionarNaLinha (first campo) (first tetramino) col cor) 
-                    (adicionarTetraminoNoCampo (rest campo) (rest tetramino) pos cor))
-              (cons (first campo) 
-                    (adicionarTetraminoNoCampo (rest campo) tetramino (posn (sub1 lin) col) cor)))]))
-
-(define (fixa jogo)
-  (cond 
-    [(empty? jogo) empty]
-    [else
-     (define pos (tetramino-pos (tetris-tetra jogo)))
-     (define campo (tetris-campo jogo))
-     (define cor (tetramino-cor (tetris-tetra jogo)))
-     (define rot (tetramino-rot (tetris-tetra jogo)))
-     (define tetramino (list-ref (tetramino-tipo (tetris-tetra jogo)) rot))
-     (struct-copy tetris jogo [campo (adicionarTetraminoNoCampo campo tetramino pos cor)])]))
-
-
 ;---------------------------------------------------------------------------------------
 ;; Fixa usando tetramino->lista-pos
 
-#;
+
 (define (adicionarTetraminoNoCampo campo list-posn cor)
   (cond [(empty? list-posn) campo]
         [else
@@ -324,7 +296,7 @@
                                             (rest rest-campo))))
          (adicionarTetraminoNoCampo novo-campo (rest list-posn) cor)]))
 
-#;
+
 (define (fixa jogo)
   (cond 
     [(empty? jogo) empty]

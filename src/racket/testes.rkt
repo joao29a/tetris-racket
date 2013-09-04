@@ -210,23 +210,6 @@
    (check-equal? (lop-livres? (append C1_LIVRES (list (first C1_OCUPADAS))) C1) #f)))
 
 
-(define adicionarNaLinha-tests 
-  (test-suite
-   "adicionarNaLinha tests"
-   (check-equal? (adicionarNaLinha '(1 0 1 1 0 1) '(0 1 0) 0 5) '(1 5 1 1 0 1))
-   (check-equal? (adicionarNaLinha '(1 0 1 1 0 1) '(0 1 0 0 1) 0 5) '(1 5 1 1 5 1))
-   (check-equal? (adicionarNaLinha  empty '(0 1 0) 0 5) empty)
-   (check-equal? (adicionarNaLinha '(1 0 1 1 0 1) empty 0 5) '(1 0 1 1 0 1))))
-
-(define adicionarTetraminoNoCampo-tests 
-  (test-suite 
-   "adicionarTetraminoNoCampo tests"
-   (check-equal? (adicionarTetraminoNoCampo (list '(0 1) '(0 1) '(0 1)) (list '(1) '(1)) (posn 1 0) 5) 
-                 (list '(0 1) '(5 1) '(5 1))) 
-   (check-equal? (adicionarTetraminoNoCampo empty '('(1) '(1)) (posn 1 0) 5) 
-                 empty)
-    (check-equal? (adicionarTetraminoNoCampo '('(0 1) '(0 1) '(0 1)) empty (posn 1 0) 5) 
-                 '('(0 1) '(0 1) '(0 1)))))
 
 (define fixa-tests
   (test-suite
@@ -297,8 +280,6 @@
                  tetramino->pos-tests
                  lop-validas?-tests
                  lop-livres?-tests
-                 adicionarNaLinha-tests
-                 adicionarTetraminoNoCampo-tests 
                  fixa-tests
                  addEmptysLinesNoTopo-tests
                  limpa-tests
