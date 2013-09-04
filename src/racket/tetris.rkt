@@ -31,7 +31,11 @@
          set-tetris-timeout
          calc-new-timeout
          desenhar-campo
-         desenhar-linha)
+         desenhar-linha
+         adicionarNaLinha
+         adicionarTetraminoNoCampo
+         addEmptysLinesNoTopo
+         fullLine?)
 
 ;; -> Tetris
 ;; Cria o jogo inicial.
@@ -88,7 +92,19 @@
 (define (mover-esquerda jogo)
   (mover sub1 jogo))
 
-(define (mover-baixo jogo) jogo)
+(define (mover-baixo jogo) 
+  (cond 
+    [(empty? jogo) empty]
+    [else (define tetra (tetris-tetra jogo))
+          (define pos (tetramino-pos tetra))
+          (define novoTetra (struct-copy tetramino tetra 
+                                         [pos (posn (add1 (posn-lin pos)) 
+                                                    (posn-col pos))]))
+          (define blocosOcupados (tetramino->lista-pos novoTetra))
+          (if (and (lop-validas? blocosOcupados LARGURA-PADRAO ALTURA-PADRAO) 
+                   (lop-livres? blocosOcupados (tetris-campo jogo)))
+              (struct-copy tetris jogo [tetra novoTetra])
+              (struct-copy tetris (fixa jogo) [tetra (centraliza (stream-first (tetris-proximos jogo)) LARGURA-PADRAO)]))]))
 
 (define (rotacionar jogo) jogo)
 
@@ -111,7 +127,6 @@
 ;; Quando ele se encaixar quem vai checar isso
 ;; é o trata-tick ou mover-abaixo?
 (define (trata-tick jogo)
-  (printf "t")
   (define timeout (tetris-timeout jogo))
   (define newTimeout (calc-new-timeout timeout))
   (define jogoWithNewTimeout (set-tetris-timeout jogo newTimeout))
@@ -243,7 +258,7 @@
               (cons (first campo) 
                     (adicionarTetraminoNoCampo (rest campo) tetramino (posn (sub1 lin) col) cor)))]))
 
-(define (fixa jogo) 
+(define (fixa jogo)
   (cond 
     [(empty? jogo) empty]
     [else
@@ -269,13 +284,12 @@
               #t) 
                (fullLine? (rest linha)))]))
 
-(define (addEmptysLinesNoTopo x campo) 
+(define (addEmptysLinesNoTopo x campo len) 
   (cond
     [(= x 0) campo]
     [else 
-     (define len (length (first campo)))
      (addEmptysLinesNoTopo (sub1 x) 
-                                   (append (list (emptyLine len)) campo))]))
+                                   (append (list (emptyLine len)) campo) len)]))
 
 (define (limpa jogo) 
   (cond 
@@ -285,7 +299,8 @@
       (define campoSemLinhasCheias (filter-not fullLine? campo))
       (define numLinhasCheias (- (length campo) 
                                  (length campoSemLinhasCheias)))
-      (struct-copy tetris jogo [campo (addEmptysLinesNoTopo numLinhasCheias campoSemLinhasCheias)])]))
+      (define len (length (first campo)))
+      (struct-copy tetris jogo [campo (addEmptysLinesNoTopo numLinhasCheias campoSemLinhasCheias len)])]))
 
 ;; -> Stream(Tetramino)
 ;; Cria um stream randômico de tetraminós.
