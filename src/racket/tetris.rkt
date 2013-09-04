@@ -104,7 +104,7 @@
           (if (and (lop-validas? blocosOcupados LARGURA-PADRAO ALTURA-PADRAO) 
                    (lop-livres? blocosOcupados (tetris-campo jogo)))
               (struct-copy tetris jogo [tetra novoTetra])
-              (struct-copy tetris (fixa jogo) [tetra (centraliza (stream-first (tetris-proximos jogo)) LARGURA-PADRAO)]))]))
+              (proximoTetra (fixa jogo)))]))
 
 (define (rotacionar jogo) jogo)
 
@@ -141,10 +141,30 @@
 ;; 2htdp/image.
 
 ;; fazer testes
+(define (desenhar-tetra tetra) 
+  (define (lop-desenha lop cor)
+   (cond
+     [(empty? lop) BLANK]
+     [else (define pos (first lop))
+      (overlay/xy 
+            (rectangle Q-LARGURA Q-ALTURA "solid" 
+                       (list-ref CORES cor)) 
+            (- (* (posn-col pos) Q-LARGURA)) (- (* (posn-lin pos) Q-ALTURA))
+            (lop-desenha (rest lop) cor))]))
+  (cond  
+    [(empty? tetra) BLANK]
+    [else
+           (define cor (tetramino-cor tetra))
+           (lop-desenha (tetramino->lista-pos tetra) cor)]))
+
 (define (desenha jogo)
-  (desenhar-campo (tetris-campo jogo) 
+  (define pos (tetramino-pos (tetris-tetra jogo)))
+  (overlay/align
+   "left" "top"
+   (desenhar-tetra (tetris-tetra jogo))
+   (desenhar-campo (tetris-campo jogo) 
                   Q-LARGURA 
-                  Q-ALTURA))
+                  Q-ALTURA)))
 
 (define (desenhar-campo campo largura altura)
   (cond [(empty? campo) BLANK]
@@ -313,3 +333,9 @@
   (cond [(zero? n) empty-stream]
         [else (stream-cons (list-ref TETRAMINOS (random 7))
                            (criar-lista-tetraminos (sub1 n)))]))
+
+(define (proximoTetra jogo) 
+  (define proximos (tetris-proximos jogo))
+  (struct-copy tetris jogo 
+               [tetra (centraliza (stream-first proximos) LARGURA-PADRAO)]
+               [proximos (stream-append (stream-rest proximos) (criar-lista-tetraminos 1))]))
