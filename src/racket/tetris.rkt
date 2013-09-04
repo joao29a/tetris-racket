@@ -76,8 +76,6 @@
         [else jogo]))
 
 ;; Move um tetramino em relação a coluna em uma unidade
-;; fazer teste
-
 (define (mover-horizontal direcao jogo)
   (define tetra (tetris-tetra jogo))
   (define pos (tetramino-pos tetra))
@@ -85,11 +83,9 @@
   (define tetramino-nova-pos (struct-copy tetramino tetra (pos nova-pos)))
   (nao-mexe-se-colidiu tetramino-nova-pos jogo))
 
-;; fazer teste
 (define (mover-direita jogo)
   (mover-horizontal add1 jogo))
 
-;; fazer teste
 (define (mover-esquerda jogo)
   (mover-horizontal sub1 jogo))
 
@@ -158,7 +154,7 @@
 ;; Quando ele se encaixar quem vai checar isso
 ;; é o trata-tick ou mover-abaixo?
 (define (trata-tick jogo)
-  (define jogo-limpo (limpa jogo))
+  (define jogo-limpo (limpa (game-over jogo)))
   (define timeout (tetris-timeout jogo-limpo))
   (define newTimeout (calc-new-timeout timeout))
   (define jogoWithNewTimeout (set-tetris-timeout jogo-limpo newTimeout))
@@ -351,6 +347,18 @@
       (define len (length (first campo)))
       (struct-copy tetris jogo [campo (addEmptysLinesNoTopo numLinhasCheias campoSemLinhasCheias len)])]))
 
+(define (game-over jogo)
+  (define tetra (tetris-tetra jogo))
+  (define tetra-centro (centraliza tetra (tetris-largura jogo)))
+  (if (equal? tetra-centro tetra)
+      (estorou-campo? tetra jogo)
+      jogo))
+
+(define (estorou-campo? tetra jogo)
+  (if (colidiu? tetra jogo)
+      (make-tetris LARGURA-PADRAO ALTURA-PADRAO (stream-tetraminos) TIMEOUT-PADRAO)
+      jogo))
+  
 ;; -> Stream(Tetramino)
 ;; Cria um stream randômico de tetraminós.
 ;; Esta função não precisa de testes.
