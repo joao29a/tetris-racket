@@ -192,25 +192,100 @@
 ;; Devolve verdadeiro se todas os posições de lp são válidas, isto é, estão
 ;; dentro de um campo de tamanho largura x altura. Devolve falso caso
 ;; contrário.
-(define (lop-validas? lp largura altura) false)
+(define (lop-validas? lp largura altura) 
+  (define (valido? pos) 
+    (define lin (posn-lin pos))
+    (define col (posn-col pos))
+    (and 
+     (and (< lin altura) (>= lin 0))
+     (and (< col largura) (>= col 0))))
+  (cond 
+    [(empty? lp) #t]
+    [else (foldl (λ (x y) (and (valido? x) y)) #t lp)]))
 
 ;; Lista(Posn) Campo -> Boolean
 ;; Devolve verdadeiro se todas as posição de lp estão livres no campo. Devolve
 ;; falso caso contrário.
 ;; Requer que todas as posições em lp sejam válidas.
-(define (lop-livres? lp campo) false)
+(define (lop-livres? lp campo)
+  (define (livre? pos)
+    (define lin (posn-lin pos))
+    (define col (posn-col pos))
+    (= (list-ref (list-ref campo lin) col) 0))
+  (cond 
+    [(empty? campo) #f]
+    [else (foldl (λ (x y) (and (livre? x) y)) #t lp)]))
 
 ;; Jogo -> Jogo
 ;; Preenche as posições ocupadas pelo tetraminó (que está caindo) no campo do
 ;; jogo.
 ;; Requer que tetraminó não possa ser movido para baixo.
-(define (fixa jogo) jogo)
+(define (adicionarNaLinha linha linha2 pos cor)
+  (cond 
+    [(empty? linha) empty]
+    [(empty? linha2) linha]
+    [else (define (nextNormal nextLinha2 npos) (cons (first linha) (adicionarNaLinha (rest linha) nextLinha2 npos cor)))
+          (if (= pos 0)
+              (if (= (first linha2) 0)
+                  (nextNormal (rest linha2) pos)
+                  (cons cor (adicionarNaLinha (rest linha) (rest linha2) pos cor)))
+              (nextNormal linha2 (sub1 pos)))]))
+
+(define (adicionarTetraminoNoCampo campo tetramino pos cor)
+  (define lin (posn-lin pos))
+  (define col (posn-col pos))
+  (cond 
+    [(empty? campo) empty]
+    [(empty? tetramino) campo]
+    [else (if (= lin 0)
+              (cons (adicionarNaLinha (first campo) (first tetramino) col cor) 
+                    (adicionarTetraminoNoCampo (rest campo) (rest tetramino) pos cor))
+              (cons (first campo) 
+                    (adicionarTetraminoNoCampo (rest campo) tetramino (posn (sub1 lin) col) cor)))]))
+
+(define (fixa jogo) 
+  (cond 
+    [(empty? jogo) empty]
+    [else
+     (define pos (tetramino-pos (tetris-tetra jogo)))
+     (define campo (tetris-campo jogo))
+     (define cor (tetramino-cor (tetris-tetra jogo)))
+     (define rot (tetramino-rot (tetris-tetra jogo)))
+     (define tetramino (list-ref (tetramino-tipo (tetris-tetra jogo)) rot))
+     (struct-copy tetris jogo [campo (adicionarTetraminoNoCampo campo tetramino pos cor)])]))
+
 
 ;; Jogo -> Jogo
 ;; Devolve um jogo sem as linhas que estão completas, isto é, as linhas que não
 ;; tem nenhum quadrado vazio. O jogo devolvido tem o mesmo tamanho do jogo de
 ;; entrada.
-(define (limpa jogo) jogo)
+(define (emptyLine n) (build-list n (λ (x) 0)))
+
+(define (fullLine? linha) 
+  (cond 
+    [(empty? linha) #t]
+    [else (and (if (= (first linha) 0)
+              #f
+              #t) 
+               (fullLine? (rest linha)))]))
+
+(define (addEmptysLinesNoTopo x campo) 
+  (cond
+    [(= x 0) campo]
+    [else 
+     (define len (length (first campo)))
+     (addEmptysLinesNoTopo (sub1 x) 
+                                   (append (list (emptyLine len)) campo))]))
+
+(define (limpa jogo) 
+  (cond 
+    [(empty? jogo) empty]
+    [else 
+      (define campo (tetris-campo jogo))
+      (define campoSemLinhasCheias (filter-not fullLine? campo))
+      (define numLinhasCheias (- (length campo) 
+                                 (length campoSemLinhasCheias)))
+      (struct-copy tetris jogo [campo (addEmptysLinesNoTopo numLinhasCheias campoSemLinhasCheias)])]))
 
 ;; -> Stream(Tetramino)
 ;; Cria um stream randômico de tetraminós.
