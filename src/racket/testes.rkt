@@ -11,12 +11,16 @@
 (define TIMEOUT 14)
 
 (define TT1 (tetramino T_TIPOS 1 (posn 1 0) T_COR))
+(define TT1_POS_DIREITA (tetramino T_TIPOS 1 (posn 1 1) T_COR))
+(define TT1_POS_BAIXO (tetramino T_TIPOS 1 (posn 2 0) T_COR))
+(define TT1_ROTACIONADO (tetramino T_TIPOS 2 (posn 1 0) T_COR))
 (define TT1_POS (list (posn 1 1)
                       (posn 2 1) (posn 2 2)
                       (posn 3 1)))
 (define TT1_CENTRA_10 (tetramino T_TIPOS 1 (posn 1 3) T_COR))
 
 (define TZ2 (tetramino Z_TIPOS 2 (posn 2 3) Z_COR))
+(define TZ2_ROTACIONADO (tetramino Z_TIPOS 3 (posn 2 3) Z_COR))
 (define TZ2_POS (list (posn 3 3) (posn 3 4)
                       (posn 4 4) (posn 4 5)))
 (define TZ2_CENTRA_15 (tetramino Z_TIPOS 2 (posn 2 6) Z_COR))
@@ -24,6 +28,12 @@
 (define TI0 (tetramino I_TIPOS 0 (posn -1 1) I_COR))
 (define TI0_POS (list (posn 0 1) (posn 0 2) (posn 0 3) (posn 0 4)))
 (define TI0_CENTRA_12 (tetramino I_TIPOS 0 (posn -1 4) I_COR))
+
+(define T03 (tetramino O_TIPOS 0 (posn 2 3) O_COR))
+(define T03_ROTACIONADO (tetramino O_TIPOS 0 (posn 2 3) O_COR))
+
+(define TS4 (tetramino S_TIPOS 3 (posn 0 1) S_COR))
+(define TS4_ROTACIONADO (tetramino S_TIPOS 0 (posn 0 1) S_COR))
 
 (define C1 (list (list 0 0 0 0 0 0 0)   ; 0
                  (list 0 0 0 0 0 0 0)   ; 1
@@ -242,6 +252,29 @@
    (check-equal? (limpa (tetris C1_FIXA_TT1 C1_LARGURA C1_ALTURA TT1 empty TIMEOUT))
                  (tetris C1_FIXA_TT1_LIMPA C1_LARGURA C1_ALTURA TT1 empty TIMEOUT))))
 
+(define rotacionar-tests
+  (test-suite
+   "rotacionar tests"
+   (check-equal? (rotacionar (tetris C2 C2_LARGURA C2_ALTURA TT1 empty TIMEOUT))
+                 (tetris C2 C2_LARGURA C2_ALTURA TT1_ROTACIONADO empty TIMEOUT))
+   (check-equal? (rotacionar (tetris C2 C2_LARGURA C2_ALTURA TZ2 empty TIMEOUT))
+                 (tetris C2 C2_LARGURA C2_ALTURA TZ2_ROTACIONADO empty TIMEOUT))
+   (check-equal? (rotacionar (tetris C2 C2_LARGURA C2_ALTURA T03 empty TIMEOUT))
+                 (tetris C2 C2_LARGURA C2_ALTURA T03_ROTACIONADO empty TIMEOUT))
+   (check-equal? (rotacionar (tetris C2 C2_LARGURA C2_ALTURA TS4 empty TIMEOUT))
+                 (tetris C2 C2_LARGURA C2_ALTURA TS4_ROTACIONADO empty TIMEOUT))))
+   
+(define mover-direita-tests
+  (test-suite
+   "mover-direita tests"
+   (check-equal? (mover-direita (tetris C2 C2_LARGURA C2_ALTURA TT1 empty TIMEOUT))
+                 (tetris C2 C2_LARGURA C2_ALTURA TT1_POS_DIREITA empty TIMEOUT))))
+
+(define mover-baixo-tests
+  (test-suite
+   "mover-baixo tests"
+   (check-equal? (mover-baixo (tetris C2 C2_LARGURA C2_ALTURA TT1 empty TIMEOUT))
+                 (tetris C2 C2_LARGURA C2_ALTURA TT1_POS_BAIXO empty TIMEOUT))))
 ;; ---------------------------------------------------------------------
 
 ;; Função que executa um grupo de testes.
@@ -257,7 +290,7 @@
                  tetramino->pos-tests
                  lop-validas?-tests
                  lop-livres?-tests
-                 adicionarNaLinha-tests
+                 ;adicionarNaLinha-tests
                  adicionarTetraminoNoCampo-tests 
                  fixa-tests
                  addEmptysLinesNoTopo-tests
@@ -265,4 +298,7 @@
                  set-tetris-timeout-tests
                  calc-new-timeout-tests
                  desenhar-campo-tests
-                 desenhar-linha-tests)
+                 desenhar-linha-tests
+                 rotacionar-tests
+                 mover-direita-tests
+                 mover-baixo-tests)
