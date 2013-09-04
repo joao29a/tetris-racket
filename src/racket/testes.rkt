@@ -20,6 +20,7 @@
 (define TT1_CENTRA_10 (tetramino T_TIPOS 1 (posn 1 3) T_COR))
 
 (define TZ2 (tetramino Z_TIPOS 2 (posn 2 3) Z_COR))
+(define TZ2_POS_ESQUERDA (tetramino Z_TIPOS 2 (posn 2 2) Z_COR))
 (define TZ2_ROTACIONADO (tetramino Z_TIPOS 3 (posn 2 3) Z_COR))
 (define TZ2_POS (list (posn 3 3) (posn 3 4)
                       (posn 4 4) (posn 4 5)))
@@ -270,6 +271,12 @@
    (check-equal? (mover-direita (tetris C2 C2_LARGURA C2_ALTURA TT1 empty TIMEOUT))
                  (tetris C2 C2_LARGURA C2_ALTURA TT1_POS_DIREITA empty TIMEOUT))))
 
+(define mover-esquerda-tests
+  (test-suite
+   "mover-esquerda tests"
+   (check-equal? (mover-esquerda (tetris C2 C2_LARGURA C2_ALTURA TZ2 empty TIMEOUT))
+                 (tetris C2 C2_LARGURA C2_ALTURA TZ2_POS_ESQUERDA empty TIMEOUT))))
+
 (define mover-baixo-tests
   (test-suite
    "mover-baixo tests"
@@ -290,7 +297,7 @@
                  tetramino->pos-tests
                  lop-validas?-tests
                  lop-livres?-tests
-                 ;adicionarNaLinha-tests
+                 adicionarNaLinha-tests
                  adicionarTetraminoNoCampo-tests 
                  fixa-tests
                  addEmptysLinesNoTopo-tests
@@ -301,4 +308,5 @@
                  desenhar-linha-tests
                  rotacionar-tests
                  mover-direita-tests
+                 mover-esquerda-tests
                  mover-baixo-tests)
