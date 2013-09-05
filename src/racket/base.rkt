@@ -152,7 +152,7 @@
 
 (define INIT-LEVEL 1)
 
-(define INIT-JOGO #t)
+(define INIT-JOGO 169)
 
 (define INIT-LINHAS 0)
 

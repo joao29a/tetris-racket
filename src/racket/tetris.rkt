@@ -37,8 +37,11 @@
          rotacionar
          mover-direita
          mover-esquerda
-         mover-baixo)
+         mover-baixo
+         estaJogando?)
 
+(define (estaJogando? jogo)
+  (< (tetris-jogando? jogo) 0))
 ;; -> Tetris
 ;; Cria o jogo inicial.
 ;; Esta função é chamada no arquivo main.rkt.
@@ -170,9 +173,12 @@
   (define level (tetris-level jogo))
   (define newTimeout (calc-new-timeout timeout level))
   (define jogoWithNewTimeout (set-tetris-timeout jogo-limpo newTimeout))
-  (if (= newTimeout 0)
-      (mover-baixo jogoWithNewTimeout)
-      jogoWithNewTimeout))
+  (cond
+    [(estaJogando? jogo)
+     (if (= newTimeout 0)
+        (mover-baixo jogoWithNewTimeout)
+        jogoWithNewTimeout)]
+    [else (struct-copy tetris jogo (jogando? (sub1 (tetris-jogando? jogo))))]))
 
 ;; Tetris -> Imagem
 ;; Esta função é chamada quando o jogo precisa ser desenhado na tela. Devolve
@@ -209,15 +215,22 @@
          (beside (text "Linhas: " FONT-SIZE FONT-COLOR)
                  (text (number->string (tetris-linhas jogo)) FONT-SIZE FONT-COLOR))))
 
+(define (imprime n)
+  (overlay/align "center" "center"
+                  (text (number->string (quotient n 30)) 100 "white")
+                  (rectangle (* Q-LARGURA LARGURA-PADRAO) (* Q-ALTURA ALTURA-PADRAO) "solid" "black")))
+
 (define (desenha jogo)
-  (overlay/align
-   "left" "top"
-   (desenhar-tetra (tetris-tetra jogo))
-   (desenhar-tetra (struct-copy tetramino (tetris-tetra (mover-direto-para-baixo jogo)) [cor 8]))
-   (beside/align "top" (desenhar-campo (tetris-campo jogo) 
-                  Q-LARGURA 
-                  Q-ALTURA)
-           (desenhar-textos jogo))))
+  (if (estaJogando? jogo)
+      (overlay/align
+       "left" "top"
+       (desenhar-tetra (tetris-tetra jogo))
+       (desenhar-tetra (struct-copy tetramino (tetris-tetra (mover-direto-para-baixo jogo)) [cor 8]))
+       (beside/align "top" (desenhar-campo (tetris-campo jogo) 
+                                           Q-LARGURA 
+                                           Q-ALTURA)
+                     (desenhar-textos jogo)))
+       (imprime (tetris-jogando? jogo))))
 
 (define (desenhar-campo campo largura altura)
   (cond [(empty? campo) BLANK]
@@ -388,9 +401,10 @@
       jogo))
 
 (define (estorou-campo? tetra jogo)
-  (if (colidiu? tetra jogo)
-      (make-tetris-padrao)
-      jogo))
+  (cond
+    [(colidiu? tetra jogo)
+      (make-tetris-padrao)]
+    [else jogo]))
   
 ;; -> Stream(Tetramino)
 ;; Cria um stream randômico de tetraminós.
