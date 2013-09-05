@@ -150,7 +150,7 @@
 
 (define INIT-PONTUACAO 0)
 
-(define INIT-LEVEL 0)
+(define INIT-LEVEL 1)
 
 (define INIT-JOGO #t)
 
