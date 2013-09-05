@@ -144,10 +144,20 @@
 (define (set-tetris-timeout jogo newValue) 
   (cond
    [(empty? jogo) empty]
-   [else (struct-copy tetris jogo (timeout newValue))])) 
+   [else (define pontos (tetris-pontuacao jogo))
+         (define level  (tetris-level jogo))
+         (define novoLevel (if (> pontos (* 100 level)) 
+                           (add1 level)
+                           level))
+         (define novoPontos (if (> pontos (* 100 level)) 
+                           0
+                           pontos))
+         (struct-copy tetris jogo (timeout newValue) 
+                      (level novoLevel) 
+                      (pontuacao novoPontos))])) 
 
-(define (calc-new-timeout timeout) 
-  (if (>= timeout TIMEOUT-PADRAO)
+(define (calc-new-timeout timeout level) 
+  (if (>= timeout (quotient TIMEOUT-PADRAO level))
       0
       (add1 timeout)))
 
@@ -157,7 +167,8 @@
 (define (trata-tick jogo)
   (define jogo-limpo (limpa (game-over jogo)))
   (define timeout (tetris-timeout jogo-limpo))
-  (define newTimeout (calc-new-timeout timeout))
+  (define level (tetris-level jogo))
+  (define newTimeout (calc-new-timeout timeout level))
   (define jogoWithNewTimeout (set-tetris-timeout jogo-limpo newTimeout))
   (if (= newTimeout 0)
       (mover-baixo jogoWithNewTimeout)
