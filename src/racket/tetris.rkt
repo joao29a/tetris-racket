@@ -108,7 +108,7 @@
      (define jogoMovido (mover-baixo jogo))
      (if (equal? (tetris-campo jogo) (tetris-campo jogoMovido))
          (mover-direto-para-baixo jogoMovido)
-         jogo)]))
+         jogoMovido)]))
 
 (define (rotacionar jogo)
   (define tetra (tetris-tetra jogo))
