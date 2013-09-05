@@ -73,7 +73,7 @@
         [(key=? tecla "left") (mover-esquerda jogo)]
         [(key=? tecla "up") (rotacionar jogo)]
         [(key=? tecla "down") (mover-baixo jogo)]
-        [(key=? tecla " ") (mover-direto-para-baixo jogo)]
+        [(key=? tecla " ") (mover-baixo (mover-direto-para-baixo jogo))]
         [else jogo]))
 
 ;; Move um tetramino em relação a coluna em uma unidade
@@ -108,7 +108,7 @@
      (define jogoMovido (mover-baixo jogo))
      (if (equal? (tetris-campo jogo) (tetris-campo jogoMovido))
          (mover-direto-para-baixo jogoMovido)
-         jogoMovido)]))
+         jogo)]))
 
 (define (rotacionar jogo)
   (define tetra (tetris-tetra jogo))
@@ -185,7 +185,8 @@
   (define (lop-desenha lop cor)
    (cond
      [(empty? lop) BLANK]
-     [else (define pos (first lop))
+     [else 
+      (define pos (first lop))
       (overlay/xy 
             (rectangle Q-LARGURA Q-ALTURA "solid" 
                        (list-ref CORES cor)) 
@@ -212,6 +213,7 @@
   (overlay/align
    "left" "top"
    (desenhar-tetra (tetris-tetra jogo))
+   (desenhar-tetra (struct-copy tetramino (tetris-tetra (mover-direto-para-baixo jogo)) [cor 8]))
    (beside/align "top" (desenhar-campo (tetris-campo jogo) 
                   Q-LARGURA 
                   Q-ALTURA)

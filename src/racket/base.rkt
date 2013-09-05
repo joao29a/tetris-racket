@@ -176,7 +176,8 @@
                     "yellow"
                     "green"
                     "purple"
-                    "red"))
+                    "red"
+                    "DarkSlateGray"))
 
 ;; Tipo Cor -> Tetramino
 ;; Cria um tetramino na posição 0 0, rotação 0 e com a cor e o tipo
