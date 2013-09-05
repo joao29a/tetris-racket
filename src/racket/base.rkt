@@ -31,6 +31,7 @@
          FONT-COLOR
          AUMENTO-LEVEL
          NOT-ACABOU
+         BLOCO-BORDA
          PONTOS
          EMPTY-RECTANGLE
          BLANK
@@ -160,7 +161,7 @@
 
 (define INIT-LINHAS 0)
 
-(define FONT-SIZE 11)
+(define FONT-SIZE 13)
 
 (define FONT-COLOR "black")
 
@@ -174,7 +175,8 @@
 ;; imagens
 (define BLANK (rectangle 0 0 "solid" "black"))
 (define EMPTY-RECTANGLE-SIZE 160)
-(define EMPTY-RECTANGLE (rectangle EMPTY-RECTANGLE-SIZE 100 "outline" "gray"))
+(define EMPTY-RECTANGLE (rectangle EMPTY-RECTANGLE-SIZE 100 "solid" "gray"))
+(define BLOCO-BORDA (rectangle Q-LARGURA Q-ALTURA "outline" "white"))
 
 ;; Lista de cores usadas para desenhar os tetraminós. Cada tetraminó tem uma
 ;; cor (número natural) que é utilizado como indíce nesta lista. O indíce 0

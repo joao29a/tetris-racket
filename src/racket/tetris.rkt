@@ -199,10 +199,11 @@
      [else 
       (define pos (first lop))
       (overlay/xy 
-            (rectangle Q-LARGURA Q-ALTURA "solid" 
-                       (list-ref CORES cor)) 
-            (- (* (posn-col pos) Q-LARGURA)) (- (* (posn-lin pos) Q-ALTURA))
-            (lop-desenha (rest lop) cor))]))
+       (overlay BLOCO-BORDA
+                (rectangle Q-LARGURA Q-ALTURA "solid" 
+                           (list-ref CORES cor)))
+       (- (* (posn-col pos) Q-LARGURA)) (- (* (posn-lin pos) Q-ALTURA))
+       (lop-desenha (rest lop) cor))]))
   (cond  
     [(empty? tetra) BLANK]
     [else
@@ -214,16 +215,18 @@
           (text (number->string resposta) size color)))
 
 (define (desenhar-textos jogo)
-  (above (overlay 
-          EMPTY-RECTANGLE
-          (desenhar-tetra (stream-first (tetris-proximos jogo))))
-         (desenha-placar "Pontuação: " (tetris-pontuacao jogo) FONT-SIZE FONT-COLOR)
-         (desenha-placar "Level: " (tetris-level jogo) FONT-SIZE FONT-COLOR)
-         (desenha-placar "Linha: " (tetris-linhas jogo) FONT-SIZE FONT-COLOR)))
+  (overlay/align "left" "top" 
+   (above (overlay 
+           (desenhar-tetra (stream-first (tetris-proximos jogo)))
+           EMPTY-RECTANGLE)
+          (desenha-placar "Pontuação: " (tetris-pontuacao jogo) FONT-SIZE FONT-COLOR)
+          (desenha-placar "Level: " (tetris-level jogo) FONT-SIZE FONT-COLOR)
+          (desenha-placar "Linha: " (tetris-linhas jogo) FONT-SIZE FONT-COLOR))
+   (desenha-tela "Chocolate")))
 
-(define desenha-tela
+(define (desenha-tela cor)
   (rectangle (+ (* Q-LARGURA LARGURA-PADRAO) EMPTY-RECTANGLE-SIZE) 
-                      (* Q-ALTURA ALTURA-PADRAO) "solid" "black"))
+                      (* Q-ALTURA ALTURA-PADRAO) "solid" cor))
 
 (define (desenha-game-over jogo)
   (overlay (above (text "Fim de Jogo." 50 "red")
@@ -231,7 +234,7 @@
                   (desenha-placar "Pontuação: " (tetris-pontuacao jogo) 25 "white")
                   (desenha-placar "Level: " (tetris-level jogo) 25 "white")
                   (desenha-placar "Linhas: " (tetris-linhas jogo) 25 "white"))
-           desenha-tela))
+           (desenha-tela "black")))
 
 
 (define (tela-inicial n)
@@ -239,7 +242,7 @@
                   (text "Criado por" 30 "Pale Green")
                   (text "João A. Jesus Jr." 25 "RoyalBlue")
                   (text "Vanderson M. do Rosario" 25 "OrangeRed"))
-           desenha-tela))
+           (desenha-tela "black")))
 
 (define (desenha jogo)
   (if (and (estaJogando? jogo) (not (tetris-fim jogo)))
@@ -263,9 +266,13 @@
 
 (define (desenhar-linha linha largura altura)
   (cond [(empty? linha) BLANK]
-        [else (beside (rectangle largura altura "solid" 
-                                 (list-ref CORES (first linha)))
-                      (desenhar-linha (rest linha) largura altura))]))
+        [else 
+         (let ([bloco (rectangle largura altura "solid" (list-ref CORES (first linha)))])
+           (beside (if (> (first linha) 0)
+                          (overlay BLOCO-BORDA
+                                   bloco)
+                          bloco)
+                   (desenhar-linha (rest linha) largura altura)))]))
 
 ;; Tetramino -> Lista(Posn)
 ;; Devolve a lista de posições que t ocupa no campo considerando a rotação e a
