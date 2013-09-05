@@ -217,7 +217,10 @@
 
 (define (imprime n)
   (overlay/align "center" "center"
-                  (text (number->string (quotient n 30)) 100 "white")
+                  (above (text (number->string (quotient n 30)) 100 "white")
+                         (text "Criado por" 30 "Pale Green")
+                         (text "João A. Jesus J." 25 "RoyalBlue")
+                         (text "Vanderson M. do Rosario" 25 "OrangeRed"))
                   (rectangle (+ (* Q-LARGURA LARGURA-PADRAO) EMPTY-RECTANGLE-SIZE) 
                              (* Q-ALTURA ALTURA-PADRAO) "solid" "black")))
 
