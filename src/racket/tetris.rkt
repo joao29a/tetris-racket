@@ -43,7 +43,8 @@
 ;; Cria o jogo inicial.
 ;; Esta função é chamada no arquivo main.rkt.
 (define (make-tetris-padrao)
-  (make-tetris LARGURA-PADRAO ALTURA-PADRAO (stream-tetraminos) TIMEOUT-PADRAO))
+  (make-tetris LARGURA-PADRAO ALTURA-PADRAO (stream-tetraminos) TIMEOUT-PADRAO
+               INIT-JOGO INIT-PONTUACAO INIT-LEVEL INIT-LINHAS))
 
 ;; Jogo String -> Jogo
 ;; Esta função é chamada quando uma tecla é pressionada.
@@ -185,13 +186,25 @@
            (define cor (tetramino-cor tetra))
            (lop-desenha (tetramino->lista-pos tetra) cor)]))
 
+(define (desenhar-textos jogo)
+  (above (overlay 
+          EMPTY-RECTANGLE
+          (desenhar-tetra (stream-first (tetris-proximos jogo))))
+         (beside (text "Pontuação: " FONT-SIZE FONT-COLOR)
+                 (text (number->string (tetris-pontuacao jogo)) FONT-SIZE FONT-COLOR))
+         (beside (text "Level: " FONT-SIZE FONT-COLOR)
+                 (text (number->string (tetris-level jogo)) FONT-SIZE FONT-COLOR))
+         (beside (text "Linhas: " FONT-SIZE FONT-COLOR)
+                 (text (number->string (tetris-linhas jogo)) FONT-SIZE FONT-COLOR))))
+
 (define (desenha jogo)
   (overlay/align
    "left" "top"
    (desenhar-tetra (tetris-tetra jogo))
-   (desenhar-campo (tetris-campo jogo) 
+   (beside/align "top" (desenhar-campo (tetris-campo jogo) 
                   Q-LARGURA 
-                  Q-ALTURA)))
+                  Q-ALTURA)
+           (desenhar-textos jogo))))
 
 (define (desenhar-campo campo largura altura)
   (cond [(empty? campo) BLANK]
@@ -345,7 +358,12 @@
       (define numLinhasCheias (- (length campo) 
                                  (length campoSemLinhasCheias)))
       (define len (length (first campo)))
-      (struct-copy tetris jogo [campo (addEmptysLinesNoTopo numLinhasCheias campoSemLinhasCheias len)])]))
+      (define (novo-jogo jogo) 
+        (struct-copy tetris jogo [campo (addEmptysLinesNoTopo numLinhasCheias campoSemLinhasCheias len)]))
+      (if (not (zero? numLinhasCheias))
+          (novo-jogo (struct-copy tetris jogo (pontuacao (* (* 40 numLinhasCheias) (add1 (tetris-level jogo))))
+                                  (linhas (+ (tetris-linhas jogo) numLinhasCheias))))
+          (novo-jogo jogo))]))
 
 (define (game-over jogo)
   (define tetra (tetris-tetra jogo))
@@ -356,7 +374,7 @@
 
 (define (estorou-campo? tetra jogo)
   (if (colidiu? tetra jogo)
-      (make-tetris LARGURA-PADRAO ALTURA-PADRAO (stream-tetraminos) TIMEOUT-PADRAO)
+      (make-tetris-padrao)
       jogo))
   
 ;; -> Stream(Tetramino)

@@ -23,6 +23,13 @@
          TIMEOUT-PADRAO
          Q-ALTURA Q-LARGURA
          TIMEOUT-PADRAO
+         INIT-JOGO
+         INIT-PONTUACAO
+         INIT-LEVEL
+         INIT-LINHAS
+         FONT-SIZE
+         FONT-COLOR
+         EMPTY-RECTANGLE
          BLANK
          CORES
          I_COR J_COR L_COR O_COR S_COR T_COR Z_COR
@@ -108,7 +115,7 @@
 ;; - tetra é o tetraminó que está caindo
 ;; - proximos é um stream com os próximos tetraminós
 ;; - timeout é um contador regressivo de ticks que controla o automovimento
-(struct tetris (campo largura altura tetra proximos timeout) #:transparent)
+(struct tetris (campo largura altura tetra proximos timeout jogando? pontuacao level linhas) #:transparent)
 
 ;; Template de função para o tipo tetris
 #;
@@ -141,9 +148,23 @@
 ;; Altura de um quadrado em pixels
 (define Q-ALTURA 20)
 
+(define INIT-PONTUACAO 0)
+
+(define INIT-LEVEL 0)
+
+(define INIT-JOGO #t)
+
+(define INIT-LINHAS 0)
+
+(define FONT-SIZE 11)
+
+(define FONT-COLOR "black")
+
 ;; Uma imagem vazia, para ser usada como elemento neutro nas operações com
 ;; imagens
 (define BLANK (rectangle 0 0 "solid" "black"))
+
+(define EMPTY-RECTANGLE (rectangle 160 100 "outline" "gray"))
 
 ;; Lista de cores usadas para desenhar os tetraminós. Cada tetraminó tem uma
 ;; cor (número natural) que é utilizado como indíce nesta lista. O indíce 0
@@ -210,10 +231,14 @@
 ;; Cria um jogo tetris de tamanho largura x altura com tetra sendo o primeiro
 ;; tetramino de tetras, e proximos o restante de tetras. O tetra é centralizado
 ;; usando a função tetramino-centraliza.
-(define (make-tetris largura altura tetras timeout)
+(define (make-tetris largura altura tetras timeout jogando? pontuacao level linhas)
   (tetris (make-campo largura altura)
           largura
           altura
           (centraliza (stream-first tetras) largura)
           (stream-rest tetras)
-          timeout))
+          timeout
+          jogando?
+          pontuacao
+          level
+          linhas))
