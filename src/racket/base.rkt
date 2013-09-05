@@ -34,7 +34,8 @@
          CORES
          I_COR J_COR L_COR O_COR S_COR T_COR Z_COR
          I J L O S T Z
-         TETRAMINOS)
+         TETRAMINOS
+         EMPTY-RECTANGLE-SIZE)
 
 ;; Cor - representa a cor de um quadrado em um campo de jogo
 ;; - Natural 0..7
@@ -163,8 +164,8 @@
 ;; Uma imagem vazia, para ser usada como elemento neutro nas operações com
 ;; imagens
 (define BLANK (rectangle 0 0 "solid" "black"))
-
-(define EMPTY-RECTANGLE (rectangle 160 100 "outline" "gray"))
+(define EMPTY-RECTANGLE-SIZE 160)
+(define EMPTY-RECTANGLE (rectangle EMPTY-RECTANGLE-SIZE 100 "outline" "gray"))
 
 ;; Lista de cores usadas para desenhar os tetraminós. Cada tetraminó tem uma
 ;; cor (número natural) que é utilizado como indíce nesta lista. O indíce 0

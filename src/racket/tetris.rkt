@@ -218,7 +218,8 @@
 (define (imprime n)
   (overlay/align "center" "center"
                   (text (number->string (quotient n 30)) 100 "white")
-                  (rectangle (* Q-LARGURA LARGURA-PADRAO) (* Q-ALTURA ALTURA-PADRAO) "solid" "black")))
+                  (rectangle (+ (* Q-LARGURA LARGURA-PADRAO) EMPTY-RECTANGLE-SIZE) 
+                             (* Q-ALTURA ALTURA-PADRAO) "solid" "black")))
 
 (define (desenha jogo)
   (if (estaJogando? jogo)
