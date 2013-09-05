@@ -405,7 +405,7 @@
         (struct-copy tetris jogo [campo (addEmptysLinesNoTopo numLinhasCheias campoSemLinhasCheias len)]))
       (if (not (zero? numLinhasCheias))
           (novo-jogo (struct-copy tetris jogo (pontuacao 
-                                               (+ (* (* PONTOS numLinhasCheias) (add1 (tetris-level jogo)))
+                                               (+ (+ (* PONTOS numLinhasCheias) (tetris-level jogo))
                                                   (tetris-pontuacao jogo)))
                                   (linhas (+ (tetris-linhas jogo) numLinhasCheias))))
           (novo-jogo jogo))]))
