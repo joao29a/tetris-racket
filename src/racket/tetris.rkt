@@ -72,12 +72,13 @@
 
 ;; fazer teste
 (define (trata-tecla jogo tecla)
-  (cond [(key=? tecla "right") (mover-direita jogo)]
-        [(key=? tecla "left") (mover-esquerda jogo)]
-        [(key=? tecla "up") (rotacionar jogo)]
-        [(key=? tecla "down") (mover-baixo jogo)]
-        [(key=? tecla " ") (mover-baixo (mover-direto-para-baixo jogo))]
-        [else jogo]))
+  (if (not (estaJogando? jogo)) jogo
+      (cond [(key=? tecla "right") (mover-direita jogo)]
+            [(key=? tecla "left") (mover-esquerda jogo)]
+            [(key=? tecla "up") (rotacionar jogo)]
+            [(key=? tecla "down") (mover-baixo jogo)]
+            [(key=? tecla " ") (mover-baixo (mover-direto-para-baixo jogo))]
+            [else jogo])))
 
 ;; Move um tetramino em relação a coluna em uma unidade
 (define (mover-horizontal direcao jogo)
@@ -149,10 +150,10 @@
    [(empty? jogo) empty]
    [else (define pontos (tetris-pontuacao jogo))
          (define level  (tetris-level jogo))
-         (define novoLevel (if (> pontos (* 100 level)) 
+         (define novoLevel (if (> pontos (* AUMENTO-LEVEL level)) 
                            (add1 level)
                            level))
-         (define novoPontos (if (> pontos (* 100 level)) 
+         (define novoPontos (if (> pontos (* AUMENTO-LEVEL level)) 
                            0
                            pontos))
          (struct-copy tetris jogo (timeout newValue) 
@@ -216,13 +217,12 @@
                  (text (number->string (tetris-linhas jogo)) FONT-SIZE FONT-COLOR))))
 
 (define (imprime n)
-  (overlay/align "center" "center"
-                  (above (text (number->string (quotient n 30)) 100 "white")
-                         (text "Criado por" 30 "Pale Green")
-                         (text "João A. Jesus J." 25 "RoyalBlue")
-                         (text "Vanderson M. do Rosario" 25 "OrangeRed"))
-                  (rectangle (+ (* Q-LARGURA LARGURA-PADRAO) EMPTY-RECTANGLE-SIZE) 
-                             (* Q-ALTURA ALTURA-PADRAO) "solid" "black")))
+  (overlay (above (text (number->string (quotient n 30)) 100 "white")
+                  (text "Criado por" 30 "Pale Green")
+                  (text "João A. Jesus Jr." 25 "RoyalBlue")
+                  (text "Vanderson M. do Rosario" 25 "OrangeRed"))
+           (rectangle (+ (* Q-LARGURA LARGURA-PADRAO) EMPTY-RECTANGLE-SIZE) 
+                      (* Q-ALTURA ALTURA-PADRAO) "solid" "black")))
 
 (define (desenha jogo)
   (if (estaJogando? jogo)
@@ -327,10 +327,6 @@
 ;; Preenche as posições ocupadas pelo tetraminó (que está caindo) no campo do
 ;; jogo.
 ;; Requer que tetraminó não possa ser movido para baixo.
-;---------------------------------------------------------------------------------------
-;; Fixa usando tetramino->lista-pos
-
-
 (define (adicionarTetraminoNoCampo campo list-posn cor)
   (cond [(empty? list-posn) campo]
         [else
@@ -355,8 +351,6 @@
      (define cor (tetramino-cor (tetris-tetra jogo)))
      (define list-posn (tetramino->lista-pos (tetris-tetra jogo)))
      (struct-copy tetris jogo (campo (adicionarTetraminoNoCampo campo list-posn cor)))]))
-
-;------------------------------------------------------------------------------------------
 
 ;; Jogo -> Jogo
 ;; Devolve um jogo sem as linhas que estão completas, isto é, as linhas que não
@@ -392,7 +386,7 @@
         (struct-copy tetris jogo [campo (addEmptysLinesNoTopo numLinhasCheias campoSemLinhasCheias len)]))
       (if (not (zero? numLinhasCheias))
           (novo-jogo (struct-copy tetris jogo (pontuacao 
-                                               (+ (* (* 40 numLinhasCheias) (add1 (tetris-level jogo)))
+                                               (+ (* (* PONTOS numLinhasCheias) (add1 (tetris-level jogo)))
                                                   (tetris-pontuacao jogo)))
                                   (linhas (+ (tetris-linhas jogo) numLinhasCheias))))
           (novo-jogo jogo))]))

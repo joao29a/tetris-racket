@@ -29,6 +29,8 @@
          INIT-LINHAS
          FONT-SIZE
          FONT-COLOR
+         AUMENTO-LEVEL
+         PONTOS
          EMPTY-RECTANGLE
          BLANK
          CORES
@@ -160,6 +162,10 @@
 (define FONT-SIZE 11)
 
 (define FONT-COLOR "black")
+
+(define AUMENTO-LEVEL 100)
+
+(define PONTOS 40)
 
 ;; Uma imagem vazia, para ser usada como elemento neutro nas operações com
 ;; imagens
