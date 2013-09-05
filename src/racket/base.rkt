@@ -30,6 +30,7 @@
          FONT-SIZE
          FONT-COLOR
          AUMENTO-LEVEL
+         NOT-ACABOU
          PONTOS
          EMPTY-RECTANGLE
          BLANK
@@ -118,7 +119,7 @@
 ;; - tetra é o tetraminó que está caindo
 ;; - proximos é um stream com os próximos tetraminós
 ;; - timeout é um contador regressivo de ticks que controla o automovimento
-(struct tetris (campo largura altura tetra proximos timeout jogando? pontuacao level linhas) #:transparent)
+(struct tetris (campo largura altura tetra proximos timeout jogando? pontuacao level linhas fim) #:transparent)
 
 ;; Template de função para o tipo tetris
 #;
@@ -166,6 +167,8 @@
 (define AUMENTO-LEVEL 100)
 
 (define PONTOS 40)
+
+(define NOT-ACABOU #f)
 
 ;; Uma imagem vazia, para ser usada como elemento neutro nas operações com
 ;; imagens
@@ -239,7 +242,7 @@
 ;; Cria um jogo tetris de tamanho largura x altura com tetra sendo o primeiro
 ;; tetramino de tetras, e proximos o restante de tetras. O tetra é centralizado
 ;; usando a função tetramino-centraliza.
-(define (make-tetris largura altura tetras timeout jogando? pontuacao level linhas)
+(define (make-tetris largura altura tetras timeout jogando? pontuacao level linhas fim)
   (tetris (make-campo largura altura)
           largura
           altura
@@ -249,4 +252,5 @@
           jogando?
           pontuacao
           level
-          linhas))
+          linhas
+          fim))

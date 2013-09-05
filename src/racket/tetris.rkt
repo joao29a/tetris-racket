@@ -47,7 +47,7 @@
 ;; Esta função é chamada no arquivo main.rkt.
 (define (make-tetris-padrao)
   (make-tetris LARGURA-PADRAO ALTURA-PADRAO (stream-tetraminos) TIMEOUT-PADRAO
-               INIT-JOGO INIT-PONTUACAO INIT-LEVEL INIT-LINHAS))
+               INIT-JOGO INIT-PONTUACAO INIT-LEVEL INIT-LINHAS NOT-ACABOU))
 
 ;; Jogo String -> Jogo
 ;; Esta função é chamada quando uma tecla é pressionada.
@@ -72,13 +72,15 @@
 
 ;; fazer teste
 (define (trata-tecla jogo tecla)
-  (if (not (estaJogando? jogo)) jogo
+  (if (estaJogando? jogo) 
       (cond [(key=? tecla "right") (mover-direita jogo)]
             [(key=? tecla "left") (mover-esquerda jogo)]
             [(key=? tecla "up") (rotacionar jogo)]
             [(key=? tecla "down") (mover-baixo jogo)]
             [(key=? tecla " ") (mover-baixo (mover-direto-para-baixo jogo))]
-            [else jogo])))
+            [(key=? tecla "r") (make-tetris-padrao)]
+            [else jogo])
+      jogo))
 
 ;; Move um tetramino em relação a coluna em uma unidade
 (define (mover-horizontal direcao jogo)
@@ -169,17 +171,19 @@
 ;; Quando ele se encaixar quem vai checar isso
 ;; é o trata-tick ou mover-abaixo?
 (define (trata-tick jogo)
-  (define jogo-limpo (limpa (game-over jogo)))
-  (define timeout (tetris-timeout jogo-limpo))
-  (define level (tetris-level jogo))
-  (define newTimeout (calc-new-timeout timeout level))
-  (define jogoWithNewTimeout (set-tetris-timeout jogo-limpo newTimeout))
-  (cond
-    [(estaJogando? jogo)
-     (if (= newTimeout 0)
-        (mover-baixo jogoWithNewTimeout)
-        jogoWithNewTimeout)]
-    [else (struct-copy tetris jogo (jogando? (sub1 (tetris-jogando? jogo))))]))
+  (cond [(tetris-fim jogo) jogo]
+        [else
+         (define jogo-limpo (limpa (game-over jogo)))
+         (define timeout (tetris-timeout jogo-limpo))
+         (define level (tetris-level jogo))
+         (define newTimeout (calc-new-timeout timeout level))
+         (define jogoWithNewTimeout (set-tetris-timeout jogo-limpo newTimeout))
+         (cond
+           [(estaJogando? jogo)
+            (if (= newTimeout 0)
+                (mover-baixo jogoWithNewTimeout)
+                jogoWithNewTimeout)]
+           [else (struct-copy tetris jogo (jogando? (sub1 (tetris-jogando? jogo))))])]))
 
 ;; Tetris -> Imagem
 ;; Esta função é chamada quando o jogo precisa ser desenhado na tela. Devolve
@@ -205,27 +209,40 @@
            (define cor (tetramino-cor tetra))
            (lop-desenha (tetramino->lista-pos tetra) cor)]))
 
+(define (desenha-placar pergunta resposta size color)
+  (beside (text pergunta size color)
+          (text (number->string resposta) size color)))
+
 (define (desenhar-textos jogo)
   (above (overlay 
           EMPTY-RECTANGLE
           (desenhar-tetra (stream-first (tetris-proximos jogo))))
-         (beside (text "Pontuação: " FONT-SIZE FONT-COLOR)
-                 (text (number->string (tetris-pontuacao jogo)) FONT-SIZE FONT-COLOR))
-         (beside (text "Level: " FONT-SIZE FONT-COLOR)
-                 (text (number->string (tetris-level jogo)) FONT-SIZE FONT-COLOR))
-         (beside (text "Linhas: " FONT-SIZE FONT-COLOR)
-                 (text (number->string (tetris-linhas jogo)) FONT-SIZE FONT-COLOR))))
+         (desenha-placar "Pontuação: " (tetris-pontuacao jogo) FONT-SIZE FONT-COLOR)
+         (desenha-placar "Level: " (tetris-level jogo) FONT-SIZE FONT-COLOR)
+         (desenha-placar "Linha: " (tetris-linhas jogo) FONT-SIZE FONT-COLOR)))
 
-(define (imprime n)
+(define desenha-tela
+  (rectangle (+ (* Q-LARGURA LARGURA-PADRAO) EMPTY-RECTANGLE-SIZE) 
+                      (* Q-ALTURA ALTURA-PADRAO) "solid" "black"))
+
+(define (desenha-game-over jogo)
+  (overlay (above (text "Fim de Jogo." 50 "red")
+                  (text "Pressione r para reiniciar." 25 "Pale Green")
+                  (desenha-placar "Pontuação: " (tetris-pontuacao jogo) 25 "white")
+                  (desenha-placar "Level: " (tetris-level jogo) 25 "white")
+                  (desenha-placar "Linhas: " (tetris-linhas jogo) 25 "white"))
+           desenha-tela))
+
+
+(define (tela-inicial n)
   (overlay (above (text (number->string (quotient n 30)) 100 "white")
                   (text "Criado por" 30 "Pale Green")
                   (text "João A. Jesus Jr." 25 "RoyalBlue")
                   (text "Vanderson M. do Rosario" 25 "OrangeRed"))
-           (rectangle (+ (* Q-LARGURA LARGURA-PADRAO) EMPTY-RECTANGLE-SIZE) 
-                      (* Q-ALTURA ALTURA-PADRAO) "solid" "black")))
+           desenha-tela))
 
 (define (desenha jogo)
-  (if (estaJogando? jogo)
+  (if (and (estaJogando? jogo) (not (tetris-fim jogo)))
       (overlay/align
        "left" "top"
        (desenhar-tetra (tetris-tetra jogo))
@@ -234,7 +251,9 @@
                                            Q-LARGURA 
                                            Q-ALTURA)
                      (desenhar-textos jogo)))
-       (imprime (tetris-jogando? jogo))))
+       (if (tetris-fim jogo) 
+           (desenha-game-over jogo)
+           (tela-inicial (tetris-jogando? jogo)))))
 
 (define (desenhar-campo campo largura altura)
   (cond [(empty? campo) BLANK]
@@ -401,7 +420,7 @@
 (define (estorou-campo? tetra jogo)
   (cond
     [(colidiu? tetra jogo)
-      (make-tetris-padrao)]
+      (struct-copy tetris jogo (fim #t))]
     [else jogo]))
   
 ;; -> Stream(Tetramino)
