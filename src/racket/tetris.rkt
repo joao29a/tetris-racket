@@ -38,7 +38,8 @@
          mover-direita
          mover-esquerda
          mover-baixo
-         estaJogando?)
+         estaJogando?
+         pontuacao)
 
 (define (estaJogando? jogo)
   (< (tetris-jogando? jogo) 0))
@@ -411,11 +412,14 @@
       (define (novo-jogo jogo) 
         (struct-copy tetris jogo [campo (addEmptysLinesNoTopo numLinhasCheias campoSemLinhasCheias len)]))
       (if (not (zero? numLinhasCheias))
-          (novo-jogo (struct-copy tetris jogo (pontuacao 
-                                               (+ (+ (* PONTOS numLinhasCheias) (tetris-level jogo))
-                                                  (tetris-pontuacao jogo)))
-                                  (linhas (+ (tetris-linhas jogo) numLinhasCheias))))
+          (novo-jogo (pontuacao jogo numLinhasCheias))
           (novo-jogo jogo))]))
+
+(define (pontuacao jogo numLinhasCheias)
+  (struct-copy tetris jogo 
+               (pontuacao (+ (+ (* PONTOS numLinhasCheias) (tetris-level jogo))
+                             (tetris-pontuacao jogo)))
+               (linhas (+ (tetris-linhas jogo) numLinhasCheias))))  
 
 (define (game-over jogo)
   (define tetra (tetris-tetra jogo))

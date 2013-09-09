@@ -96,10 +96,10 @@
 (define calc-new-timeout-tests
   (test-suite
    "calc-new-timeout"
-   (check-equal? (calc-new-timeout 0) 1)
-   (check-equal? (calc-new-timeout 5) 6)
-   (check-equal? (calc-new-timeout 28) 0)
-   (check-equal? (calc-new-timeout 100) 0)))
+   (check-equal? (calc-new-timeout 0 INIT-LEVEL) 1)
+   (check-equal? (calc-new-timeout 5 INIT-LEVEL) 6)
+   (check-equal? (calc-new-timeout 28 INIT-LEVEL) 0)
+   (check-equal? (calc-new-timeout 100 INIT-LEVEL) 0)))
 
 (define desenhar-campo-tests
   (test-suite
@@ -109,10 +109,12 @@
                  (rectangle Q-LARGURA Q-ALTURA "solid" "black"))
    (check-equal? (desenhar-campo (list (list 1 0)
                                        (list 0 1)) 10 10)
-                 (above (beside (rectangle 10 10 "solid" "cyan")
+                 (above (beside (overlay BLOCO-BORDA
+                                         (rectangle 10 10 "solid" "cyan"))
                                 (rectangle 10 10 "solid" "black"))
                         (beside (rectangle 10 10 "solid" "black")
-                                (rectangle 10 10 "solid" "cyan"))))))
+                                (overlay BLOCO-BORDA
+                                         (rectangle 10 10 "solid" "cyan")))))))
 
 (define desenhar-linha-tests
   (test-suite
@@ -120,12 +122,18 @@
    (check-equal? (desenhar-linha empty Q-LARGURA Q-ALTURA) BLANK)
    (check-equal? (desenhar-linha (list 0) Q-LARGURA Q-ALTURA) 
                  (rectangle Q-LARGURA Q-ALTURA "solid" "black"))
-   (check-equal? (desenhar-linha (list 3 1 4 5) Q-LARGURA Q-ALTURA) 
-                 (beside (rectangle Q-LARGURA Q-ALTURA "solid" "orange")
-                         (rectangle Q-LARGURA Q-ALTURA "solid" "cyan")
-                         (rectangle Q-LARGURA Q-ALTURA "solid" "yellow")
-                         (rectangle Q-LARGURA Q-ALTURA "solid" "green")))))
-
+   (check-equal? (desenhar-linha (list 3 1 4 5 0) Q-LARGURA Q-ALTURA) 
+                 (beside 
+                  (overlay BLOCO-BORDA
+                           (rectangle Q-LARGURA Q-ALTURA "solid" "orange"))
+                  (overlay BLOCO-BORDA
+                           (rectangle Q-LARGURA Q-ALTURA "solid" "cyan"))
+                  (overlay BLOCO-BORDA
+                           (rectangle Q-LARGURA Q-ALTURA "solid" "yellow"))
+                  (overlay BLOCO-BORDA
+                           (rectangle Q-LARGURA Q-ALTURA "solid" "green"))
+                  (rectangle Q-LARGURA Q-ALTURA "solid" "black")))))
+                  
 (define make-linha-tests
   (test-suite
    "make-linha tests"
@@ -150,13 +158,14 @@
 (define make-tetris-tests
   (test-suite
    "make-tetris tests"
-   (check-equal? (make-tetris C2_LARGURA C2_ALTURA (list TT1 TZ2 TI0) TIMEOUT)
+   (check-equal? (make-tetris C2_LARGURA C2_ALTURA (list TT1 TZ2 TI0) TIMEOUT INIT-JOGO 
+                              INIT-PONTUACAO INIT-LEVEL INIT-LINHAS NOT-ACABOU)
                  (tetris C2
                          C2_LARGURA
                          C2_ALTURA
                          (centraliza TT1 C2_LARGURA)
                          (list TZ2 TI0)
-                         TIMEOUT))))
+                         TIMEOUT INIT-JOGO INIT-PONTUACAO INIT-LEVEL INIT-LINHAS NOT-ACABOU))))
 
 (define tetramino->pos-tests
   (test-suite
@@ -214,8 +223,10 @@
 (define fixa-tests
   (test-suite
    "fixa tests"
-   (check-equal? (fixa (tetris C1 C1_LARGURA C1_ALTURA TT1 empty TIMEOUT))
-                 (tetris C1_FIXA_TT1 C1_LARGURA C1_ALTURA TT1 empty TIMEOUT))))
+   (check-equal? (fixa (tetris C1 C1_LARGURA C1_ALTURA TT1 empty TIMEOUT INIT-JOGO 
+                               INIT-PONTUACAO INIT-LEVEL INIT-LINHAS NOT-ACABOU))
+                 (tetris C1_FIXA_TT1 C1_LARGURA C1_ALTURA TT1 empty TIMEOUT INIT-JOGO 
+                         INIT-PONTUACAO INIT-LEVEL INIT-LINHAS NOT-ACABOU))))
 
 (define addEmptysLinesNoTopo-tests
   (test-suite
@@ -233,38 +244,70 @@
 (define limpa-tests
   (test-suite
    "limpa tests"
-   (check-equal? (limpa (tetris C1_FIXA_TT1 C1_LARGURA C1_ALTURA TT1 empty TIMEOUT))
-                 (tetris C1_FIXA_TT1_LIMPA C1_LARGURA C1_ALTURA TT1 empty TIMEOUT))))
+   (check-equal? (limpa (tetris C1_FIXA_TT1 C1_LARGURA C1_ALTURA TT1 empty TIMEOUT INIT-JOGO 
+                                INIT-PONTUACAO INIT-LEVEL INIT-LINHAS NOT-ACABOU))
+                 (tetris C1_FIXA_TT1_LIMPA C1_LARGURA C1_ALTURA TT1 empty TIMEOUT INIT-JOGO 
+                         81 INIT-LEVEL 2 NOT-ACABOU))))
+
+(define pontuacao-tests
+  (test-suite
+   "pontuacao tests"
+   (check-equal? (pontuacao (tetris C2 C2_LARGURA C2_ALTURA TT1 empty TIMEOUT INIT-JOGO 
+                                INIT-PONTUACAO INIT-LEVEL INIT-LINHAS NOT-ACABOU) 2)
+                 (tetris C2 C2_LARGURA C2_ALTURA TT1 empty TIMEOUT INIT-JOGO 
+                         81 INIT-LEVEL 2 NOT-ACABOU))
+   
+   (check-equal? (pontuacao (tetris C2 C2_LARGURA C2_ALTURA TT1 empty TIMEOUT INIT-JOGO 
+                                INIT-PONTUACAO INIT-LEVEL INIT-LINHAS NOT-ACABOU) 5)
+                 (tetris C2 C2_LARGURA C2_ALTURA TT1 empty TIMEOUT INIT-JOGO 
+                         201 INIT-LEVEL 5 NOT-ACABOU))))
 
 (define rotacionar-tests
   (test-suite
    "rotacionar tests"
-   (check-equal? (rotacionar (tetris C2 C2_LARGURA C2_ALTURA TT1 empty TIMEOUT))
-                 (tetris C2 C2_LARGURA C2_ALTURA TT1_ROTACIONADO empty TIMEOUT))
-   (check-equal? (rotacionar (tetris C2 C2_LARGURA C2_ALTURA TZ2 empty TIMEOUT))
-                 (tetris C2 C2_LARGURA C2_ALTURA TZ2_ROTACIONADO empty TIMEOUT))
-   (check-equal? (rotacionar (tetris C2 C2_LARGURA C2_ALTURA T03 empty TIMEOUT))
-                 (tetris C2 C2_LARGURA C2_ALTURA T03_ROTACIONADO empty TIMEOUT))
-   (check-equal? (rotacionar (tetris C2 C2_LARGURA C2_ALTURA TS4 empty TIMEOUT))
-                 (tetris C2 C2_LARGURA C2_ALTURA TS4_ROTACIONADO empty TIMEOUT))))
+   (check-equal? (rotacionar (tetris C2 C2_LARGURA C2_ALTURA TT1 empty TIMEOUT INIT-JOGO 
+                                     INIT-PONTUACAO INIT-LEVEL INIT-LINHAS NOT-ACABOU))
+                 (tetris C2 C2_LARGURA C2_ALTURA TT1_ROTACIONADO empty TIMEOUT INIT-JOGO 
+                         INIT-PONTUACAO INIT-LEVEL INIT-LINHAS NOT-ACABOU))
+   
+   (check-equal? (rotacionar (tetris C2 C2_LARGURA C2_ALTURA TZ2 empty TIMEOUT INIT-JOGO 
+                                     INIT-PONTUACAO INIT-LEVEL INIT-LINHAS NOT-ACABOU))
+                 (tetris C2 C2_LARGURA C2_ALTURA TZ2_ROTACIONADO empty TIMEOUT INIT-JOGO 
+                         INIT-PONTUACAO INIT-LEVEL INIT-LINHAS NOT-ACABOU))
+   
+   (check-equal? (rotacionar (tetris C2 C2_LARGURA C2_ALTURA T03 empty TIMEOUT INIT-JOGO 
+                                     INIT-PONTUACAO INIT-LEVEL INIT-LINHAS NOT-ACABOU))
+                 (tetris C2 C2_LARGURA C2_ALTURA T03_ROTACIONADO empty TIMEOUT INIT-JOGO 
+                         INIT-PONTUACAO INIT-LEVEL INIT-LINHAS NOT-ACABOU))
+   
+   (check-equal? (rotacionar (tetris C2 C2_LARGURA C2_ALTURA TS4 empty TIMEOUT INIT-JOGO 
+                                     INIT-PONTUACAO INIT-LEVEL INIT-LINHAS NOT-ACABOU))
+                 (tetris C2 C2_LARGURA C2_ALTURA TS4_ROTACIONADO empty TIMEOUT INIT-JOGO 
+                         INIT-PONTUACAO INIT-LEVEL INIT-LINHAS NOT-ACABOU))))
    
 (define mover-direita-tests
   (test-suite
    "mover-direita tests"
-   (check-equal? (mover-direita (tetris C2 C2_LARGURA C2_ALTURA TT1 empty TIMEOUT))
-                 (tetris C2 C2_LARGURA C2_ALTURA TT1_POS_DIREITA empty TIMEOUT))))
+   (check-equal? (mover-direita (tetris C2 C2_LARGURA C2_ALTURA TT1 empty TIMEOUT INIT-JOGO 
+                                        INIT-PONTUACAO INIT-LEVEL INIT-LINHAS NOT-ACABOU))
+                 (tetris C2 C2_LARGURA C2_ALTURA TT1_POS_DIREITA empty TIMEOUT INIT-JOGO 
+                         INIT-PONTUACAO INIT-LEVEL INIT-LINHAS NOT-ACABOU))))
 
 (define mover-esquerda-tests
   (test-suite
    "mover-esquerda tests"
-   (check-equal? (mover-esquerda (tetris C2 C2_LARGURA C2_ALTURA TZ2 empty TIMEOUT))
-                 (tetris C2 C2_LARGURA C2_ALTURA TZ2_POS_ESQUERDA empty TIMEOUT))))
+   (check-equal? (mover-esquerda (tetris C2 C2_LARGURA C2_ALTURA TZ2 empty TIMEOUT INIT-JOGO 
+                                         INIT-PONTUACAO INIT-LEVEL INIT-LINHAS NOT-ACABOU))
+                 (tetris C2 C2_LARGURA C2_ALTURA TZ2_POS_ESQUERDA empty TIMEOUT INIT-JOGO 
+                         INIT-PONTUACAO INIT-LEVEL INIT-LINHAS NOT-ACABOU))))
 
 (define mover-baixo-tests
   (test-suite
    "mover-baixo tests"
-   (check-equal? (mover-baixo (tetris C2 C2_LARGURA C2_ALTURA TT1 empty TIMEOUT))
-                 (tetris C2 C2_LARGURA C2_ALTURA TT1_POS_BAIXO empty TIMEOUT))))
+   (check-equal? (mover-baixo (tetris C2 C2_LARGURA C2_ALTURA TT1 empty TIMEOUT INIT-JOGO 
+                                      INIT-PONTUACAO INIT-LEVEL INIT-LINHAS NOT-ACABOU))
+                 (tetris C2 C2_LARGURA C2_ALTURA TT1_POS_BAIXO empty TIMEOUT INIT-JOGO 
+                         INIT-PONTUACAO INIT-LEVEL INIT-LINHAS NOT-ACABOU))))
 ;; ---------------------------------------------------------------------
 
 ;; Função que executa um grupo de testes.
@@ -290,4 +333,5 @@
                  rotacionar-tests
                  mover-direita-tests
                  mover-esquerda-tests
-                 mover-baixo-tests)
+                 mover-baixo-tests
+                 pontuacao-tests)
