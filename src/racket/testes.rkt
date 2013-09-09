@@ -79,6 +79,14 @@
                  (list 0 0 0 0 0)
                  (list 0 0 0 0 0)))
 
+(define C3 (list (list 1 1 1 1 1)
+                 (list 1 1 1 1 1)
+                 (list 1 1 1 1 1)
+                 (list 1 1 1 1 1)
+                 (list 1 1 1 1 1)
+                 (list 1 1 1 1 1)
+                 (list 1 1 1 1 1)))
+
 (define C2_LARGURA 5)
 (define C2_ALTURA 7)
 
@@ -93,13 +101,13 @@
    (check-equal? (tetris-timeout (set-tetris-timeout (make-tetris-padrao) 100)) 
                  100)))
 
-(define calc-new-timeout-tests
+(define calc-novo-timeout-tests
   (test-suite
-   "calc-new-timeout"
-   (check-equal? (calc-new-timeout 0 INIT-LEVEL) 1)
-   (check-equal? (calc-new-timeout 5 INIT-LEVEL) 6)
-   (check-equal? (calc-new-timeout 28 INIT-LEVEL) 0)
-   (check-equal? (calc-new-timeout 100 INIT-LEVEL) 0)))
+   "calc-novo-timeout"
+   (check-equal? (calc-novo-timeout 0 INIT-LEVEL) 1)
+   (check-equal? (calc-novo-timeout 5 INIT-LEVEL) 6)
+   (check-equal? (calc-novo-timeout 28 INIT-LEVEL) 0)
+   (check-equal? (calc-novo-timeout 100 INIT-LEVEL) 0)))
 
 (define desenhar-campo-tests
   (test-suite
@@ -228,12 +236,12 @@
                  (tetris C1_FIXA_TT1 C1_LARGURA C1_ALTURA TT1 empty TIMEOUT INIT-JOGO 
                          INIT-PONTUACAO INIT-LEVEL INIT-LINHAS NOT-ACABOU))))
 
-(define addEmptysLinesNoTopo-tests
+(define add-linhas-vazias-no-topo-tests
   (test-suite
-   "addEmptysLinesNoTopo testes"
-   (check-equal? (addEmptysLinesNoTopo 2 (list '(1 0) '(0 1)) 2) (list '(0 0) '(0 0) '(1 0) '(0 1)))   
-   (check-equal? (addEmptysLinesNoTopo 0 (list '(1 0) '(0 1)) 2) (list '(1 0) '(0 1)))
-   (check-equal? (addEmptysLinesNoTopo 2 empty 2) (list '(0 0) '(0 0) ))))
+   "add-linhas-vazias-no-topo testes"
+   (check-equal? (add-linhas-vazias-no-topo 2 (list '(1 0) '(0 1)) 2) (list '(0 0) '(0 0) '(1 0) '(0 1)))   
+   (check-equal? (add-linhas-vazias-no-topo 0 (list '(1 0) '(0 1)) 2) (list '(1 0) '(0 1)))
+   (check-equal? (add-linhas-vazias-no-topo 2 empty 2) (list '(0 0) '(0 0) ))))
 
 (define fullLine?-tests 
   (test-suite
@@ -247,20 +255,7 @@
    (check-equal? (limpa (tetris C1_FIXA_TT1 C1_LARGURA C1_ALTURA TT1 empty TIMEOUT INIT-JOGO 
                                 INIT-PONTUACAO INIT-LEVEL INIT-LINHAS NOT-ACABOU))
                  (tetris C1_FIXA_TT1_LIMPA C1_LARGURA C1_ALTURA TT1 empty TIMEOUT INIT-JOGO 
-                         81 INIT-LEVEL 2 NOT-ACABOU))))
-
-(define pontuacao-tests
-  (test-suite
-   "pontuacao tests"
-   (check-equal? (pontuacao (tetris C2 C2_LARGURA C2_ALTURA TT1 empty TIMEOUT INIT-JOGO 
-                                INIT-PONTUACAO INIT-LEVEL INIT-LINHAS NOT-ACABOU) 2)
-                 (tetris C2 C2_LARGURA C2_ALTURA TT1 empty TIMEOUT INIT-JOGO 
-                         81 INIT-LEVEL 2 NOT-ACABOU))
-   
-   (check-equal? (pontuacao (tetris C2 C2_LARGURA C2_ALTURA TT1 empty TIMEOUT INIT-JOGO 
-                                INIT-PONTUACAO INIT-LEVEL INIT-LINHAS NOT-ACABOU) 5)
-                 (tetris C2 C2_LARGURA C2_ALTURA TT1 empty TIMEOUT INIT-JOGO 
-                         201 INIT-LEVEL 5 NOT-ACABOU))))
+                         160 INIT-LEVEL 2 NOT-ACABOU))))
 
 (define rotacionar-tests
   (test-suite
@@ -308,6 +303,53 @@
                                       INIT-PONTUACAO INIT-LEVEL INIT-LINHAS NOT-ACABOU))
                  (tetris C2 C2_LARGURA C2_ALTURA TT1_POS_BAIXO empty TIMEOUT INIT-JOGO 
                          INIT-PONTUACAO INIT-LEVEL INIT-LINHAS NOT-ACABOU))))
+
+(define estorou-campo?-tests
+  (test-suite
+   "estorou-campo?-Tests"
+   (check-equal? (estorou-campo? TT1 (tetris C3 C1_LARGURA C1_ALTURA TT1 empty TIMEOUT INIT-JOGO 
+                                INIT-PONTUACAO INIT-LEVEL INIT-LINHAS NOT-ACABOU)) 
+                 (tetris C3 C1_LARGURA C1_ALTURA TT1 empty TIMEOUT INIT-JOGO 
+                                INIT-PONTUACAO INIT-LEVEL INIT-LINHAS #t))
+   (check-equal? (estorou-campo? TT1 (tetris C2 C1_LARGURA C1_ALTURA TT1 empty TIMEOUT INIT-JOGO 
+                                INIT-PONTUACAO INIT-LEVEL INIT-LINHAS NOT-ACABOU)) 
+                 (tetris C2 C1_LARGURA C1_ALTURA TT1 empty TIMEOUT INIT-JOGO 
+                                INIT-PONTUACAO INIT-LEVEL INIT-LINHAS NOT-ACABOU))))
+
+
+(define game-over-tests
+  (test-suite
+   "game-over?-tests"
+   (check-equal? (game-over (tetris C2 C1_LARGURA C1_ALTURA TT1 empty TIMEOUT INIT-JOGO 
+                                INIT-PONTUACAO INIT-LEVEL INIT-LINHAS NOT-ACABOU)) 
+                 (tetris C2 C1_LARGURA C1_ALTURA TT1 empty TIMEOUT INIT-JOGO 
+                                INIT-PONTUACAO INIT-LEVEL INIT-LINHAS NOT-ACABOU))
+   (check-equal? (game-over (tetris C3 C1_LARGURA C1_ALTURA (centraliza TT1 C1_LARGURA) 
+                                empty TIMEOUT INIT-JOGO 
+                                INIT-PONTUACAO INIT-LEVEL INIT-LINHAS NOT-ACABOU)) 
+                 (tetris C3 C1_LARGURA C1_ALTURA (centraliza TT1 C1_LARGURA)  empty TIMEOUT INIT-JOGO 
+                                INIT-PONTUACAO INIT-LEVEL INIT-LINHAS #t))))
+
+;; Teste de pontuação apenas checa se a pontuação está aumentando
+;; Devido a grande quantidade de mudanças na regra de pontuação 
+;; O importante é que o sistema aumente e não quanto ou como
+(define jogo (tetris C2 C1_LARGURA C1_ALTURA TT1 empty TIMEOUT INIT-JOGO 
+                                INIT-PONTUACAO INIT-LEVEL INIT-LINHAS NOT-ACABOU)) 
+(define pontuacao-tests
+  (test-suite
+   "pontuacao-tests"
+   (check-true (> (tetris-pontuacao (pontuacao jogo 1)) (tetris-pontuacao jogo))) 
+   (check-true (= (tetris-pontuacao (pontuacao jogo 0)) (tetris-pontuacao jogo))))) 
+
+;;adicionar-tetramin-no-campo 
+;;contar-posn-col
+;;contar-posn-lin
+;;desenhar-tetra
+;;fixa-se-colidiu
+;;nao-mexe-se-colidiu
+;;colidiu?
+;;rotacionar
+;;mover-direto-para-baixo
 ;; ---------------------------------------------------------------------
 
 ;; Função que executa um grupo de testes.
@@ -324,14 +366,16 @@
                  lop-validas?-tests
                  lop-livres?-tests
                  fixa-tests
-                 addEmptysLinesNoTopo-tests
+                 add-linhas-vazias-no-topo-tests
                  limpa-tests
                  set-tetris-timeout-tests
-                 calc-new-timeout-tests
+                 calc-novo-timeout-tests
                  desenhar-campo-tests
                  desenhar-linha-tests
                  rotacionar-tests
                  mover-direita-tests
                  mover-esquerda-tests
                  mover-baixo-tests
-                 pontuacao-tests)
+                 pontuacao-tests
+                 estorou-campo?-tests
+                 game-over-tests)

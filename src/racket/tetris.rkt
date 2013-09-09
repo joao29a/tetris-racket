@@ -29,17 +29,30 @@
          trata-tick
          desenha
          set-tetris-timeout
-         calc-new-timeout
+         calc-novo-timeout
          desenhar-campo
          desenhar-linha
-         addEmptysLinesNoTopo
+         add-linhas-vazias-no-topo
          fullLine?
          rotacionar
          mover-direita
          mover-esquerda
          mover-baixo
          estaJogando?
-         pontuacao)
+         pontuacao
+         estorou-campo?
+         game-over
+         pontuacao
+         adicionar-tetramin-no-campo
+         contar-posn-col
+         contar-posn-lin
+         desenhar-tetra
+         calc-novo-timeout
+         fixa-se-colidiu
+         nao-mexe-se-colidiu
+         colidiu?
+         rotacionar
+         mover-direto-para-baixo)
 
 (define (estaJogando? jogo)
   (< (tetris-jogando? jogo) 0))
@@ -163,21 +176,19 @@
                       (level novoLevel) 
                       (pontuacao novoPontos))])) 
 
-(define (calc-new-timeout timeout level) 
+(define (calc-novo-timeout timeout level) 
   (if (>= timeout (quotient TIMEOUT-PADRAO level))
       0
       (add1 timeout)))
 
-;; TODO! 
-;; Quando ele se encaixar quem vai checar isso
-;; é o trata-tick ou mover-abaixo?
+
 (define (trata-tick jogo)
   (cond [(tetris-fim jogo) jogo]
         [else
          (define jogo-limpo (limpa (game-over jogo)))
          (define timeout (tetris-timeout jogo-limpo))
          (define level (tetris-level jogo))
-         (define newTimeout (calc-new-timeout timeout level))
+         (define newTimeout (calc-novo-timeout timeout level))\\
          (define jogoWithNewTimeout (set-tetris-timeout jogo-limpo newTimeout))
          (cond
            [(estaJogando? jogo)
@@ -354,7 +365,7 @@
 ;; Preenche as posições ocupadas pelo tetraminó (que está caindo) no campo do
 ;; jogo.
 ;; Requer que tetraminó não possa ser movido para baixo.
-(define (adicionarTetraminoNoCampo campo list-posn cor)
+(define (adicionar-tetramin-no-campo campo list-posn cor)
   (cond [(empty? list-posn) campo]
         [else
          (define lin (posn-lin (first list-posn)))
@@ -367,7 +378,7 @@
                                     (cons (append first-line
                                                     (cons cor (rest rest-line)))
                                             (rest rest-campo))))
-         (adicionarTetraminoNoCampo novo-campo (rest list-posn) cor)]))
+         (adicionar-tetramin-no-campo novo-campo (rest list-posn) cor)]))
 
 
 (define (fixa jogo)
@@ -377,7 +388,7 @@
      (define campo (tetris-campo jogo))
      (define cor (tetramino-cor (tetris-tetra jogo)))
      (define list-posn (tetramino->lista-pos (tetris-tetra jogo)))
-     (struct-copy tetris jogo (campo (adicionarTetraminoNoCampo campo list-posn cor)))]))
+     (struct-copy tetris jogo (campo (adicionar-tetramin-no-campo campo list-posn cor)))]))
 
 ;; Jogo -> Jogo
 ;; Devolve um jogo sem as linhas que estão completas, isto é, as linhas que não
@@ -393,11 +404,11 @@
               #t) 
                (fullLine? (rest linha)))]))
 
-(define (addEmptysLinesNoTopo x campo len) 
+(define (add-linhas-vazias-no-topo x campo len) 
   (cond
     [(= x 0) campo]
     [else 
-     (addEmptysLinesNoTopo (sub1 x) 
+     (add-linhas-vazias-no-topo (sub1 x) 
                                    (append (list (emptyLine len)) campo) len)]))
 
 (define (limpa jogo) 
@@ -410,14 +421,14 @@
                                  (length campoSemLinhasCheias)))
       (define len (length (first campo)))
       (define (novo-jogo jogo) 
-        (struct-copy tetris jogo [campo (addEmptysLinesNoTopo numLinhasCheias campoSemLinhasCheias len)]))
+        (struct-copy tetris jogo [campo (add-linhas-vazias-no-topo numLinhasCheias campoSemLinhasCheias len)]))
       (if (not (zero? numLinhasCheias))
           (novo-jogo (pontuacao jogo numLinhasCheias))
           (novo-jogo jogo))]))
 
 (define (pontuacao jogo numLinhasCheias)
   (struct-copy tetris jogo 
-               (pontuacao (+ (+ (* PONTOS numLinhasCheias) (tetris-level jogo))
+               (pontuacao (+ (+ (* PONTOS numLinhasCheias 2))
                              (tetris-pontuacao jogo)))
                (linhas (+ (tetris-linhas jogo) numLinhasCheias))))  
 
