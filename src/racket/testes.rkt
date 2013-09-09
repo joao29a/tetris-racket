@@ -79,6 +79,14 @@
                  (list 0 0 0 0 0)
                  (list 0 0 0 0 0)))
 
+(define C2_TT1 (list (list 0 0 0 0 0)
+                 (list 0 0 0 0 0)
+                 (list 0 0 0 0 0)
+                 (list 0 0 0 0 0)
+                 (list 0 6 0 0 0)
+                 (list 0 6 6 0 0)
+                 (list 0 6 0 0 0)))
+
 (define C3 (list (list 1 1 1 1 1)
                  (list 1 1 1 1 1)
                  (list 1 1 1 1 1)
@@ -341,15 +349,37 @@
    (check-true (> (tetris-pontuacao (pontuacao jogo 1)) (tetris-pontuacao jogo))) 
    (check-true (= (tetris-pontuacao (pontuacao jogo 0)) (tetris-pontuacao jogo))))) 
 
-;;adicionar-tetramin-no-campo 
-;;contar-posn-col
-;;contar-posn-lin
-;;desenhar-tetra
-;;fixa-se-colidiu
-;;nao-mexe-se-colidiu
-;;colidiu?
-;;rotacionar
-;;mover-direto-para-baixo
+(define prox (criar-lista-tetraminos 2))
+(define fixa-se-colidiu-tests
+  (test-suite 
+   "fixa-se-colidiu-tests"
+   (check-equal?  (tetris-campo (fixa-se-colidiu TT1_POS_BAIXO (tetris C1 C1_LARGURA C1_ALTURA TT1 prox TIMEOUT INIT-JOGO 
+                               INIT-PONTUACAO INIT-LEVEL INIT-LINHAS NOT-ACABOU)))
+                 (tetris-campo (tetris C1_FIXA_TT1 C1_LARGURA C1_ALTURA TT1 prox TIMEOUT INIT-JOGO 
+                         INIT-PONTUACAO INIT-LEVEL INIT-LINHAS NOT-ACABOU)))
+   (check-equal?  (tetris-campo (fixa-se-colidiu TT1_POS_BAIXO (tetris C2 C1_LARGURA C1_ALTURA TT1 empty TIMEOUT INIT-JOGO 
+                               INIT-PONTUACAO INIT-LEVEL INIT-LINHAS NOT-ACABOU)))
+                  (tetris-campo (tetris C2 C1_LARGURA C1_ALTURA TT1 empty TIMEOUT INIT-JOGO 
+                         INIT-PONTUACAO INIT-LEVEL INIT-LINHAS NOT-ACABOU)))))
+
+
+(define colidiu?-tests
+  (test-suite 
+   "fixa-se-colidiu-tests"
+   (check-equal? (colidiu? TT1_POS_BAIXO (tetris C2 C1_LARGURA C1_ALTURA TT1 empty TIMEOUT INIT-JOGO 
+                               INIT-PONTUACAO INIT-LEVEL INIT-LINHAS NOT-ACABOU)) #f)
+  (check-equal? (colidiu? TT1_POS_BAIXO (tetris C1 C1_LARGURA C1_ALTURA TT1 empty TIMEOUT INIT-JOGO 
+                               INIT-PONTUACAO INIT-LEVEL INIT-LINHAS NOT-ACABOU)) #t))) 
+
+(define mover-direto-para-baixo-tests
+  (test-suite 
+   "fixa-se-colidiu-tests"
+   (check-equal? (tetris-campo (fixa (mover-direto-para-baixo (tetris C2 C2_LARGURA C2_ALTURA TT1 prox TIMEOUT INIT-JOGO 
+                               INIT-PONTUACAO INIT-LEVEL INIT-LINHAS NOT-ACABOU))))  
+                 (tetris-campo (mover-direto-para-baixo (tetris C2_TT1 C2_LARGURA C2_ALTURA TT1 prox TIMEOUT INIT-JOGO 
+                               INIT-PONTUACAO INIT-LEVEL INIT-LINHAS NOT-ACABOU))))))
+
+
 ;; ---------------------------------------------------------------------
 
 ;; Função que executa um grupo de testes.
@@ -378,4 +408,7 @@
                  mover-baixo-tests
                  pontuacao-tests
                  estorou-campo?-tests
-                 game-over-tests)
+                 game-over-tests
+                 fixa-se-colidiu-tests
+                 colidiu?-tests
+                 mover-direto-para-baixo-tests)

@@ -52,7 +52,8 @@
          nao-mexe-se-colidiu
          colidiu?
          rotacionar
-         mover-direto-para-baixo)
+         mover-direto-para-baixo
+         criar-lista-tetraminos)
 
 (define (estaJogando? jogo)
   (< (tetris-jogando? jogo) 0))
@@ -143,8 +144,11 @@
 
 (define (colidiu? tetra jogo) 
   (define blocosOcupados (tetramino->lista-pos tetra))
-  (not (and (lop-validas? blocosOcupados LARGURA-PADRAO ALTURA-PADRAO)
-           (lop-livres? blocosOcupados (tetris-campo jogo)))))
+  (define LARGURA (tetris-largura jogo))
+  (define ALTURA (tetris-altura jogo))
+  (not (and 
+            (lop-validas? blocosOcupados LARGURA ALTURA)
+            (lop-livres? blocosOcupados (tetris-campo jogo)))))
 
 (define (nao-mexe-se-colidiu tetra jogo) 
   (if (colidiu? tetra jogo)
@@ -188,7 +192,7 @@
          (define jogo-limpo (limpa (game-over jogo)))
          (define timeout (tetris-timeout jogo-limpo))
          (define level (tetris-level jogo))
-         (define newTimeout (calc-novo-timeout timeout level))\\
+         (define newTimeout (calc-novo-timeout timeout level))
          (define jogoWithNewTimeout (set-tetris-timeout jogo-limpo newTimeout))
          (cond
            [(estaJogando? jogo)
