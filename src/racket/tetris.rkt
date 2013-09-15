@@ -254,7 +254,7 @@
 
 
 (define (tela-inicial n)
-  (overlay (above (text (number->string (quotient n 30)) 100 "white")
+  (overlay (above (text (number->string (quotient n 30)) 100 (list-ref CORES (random 9)))
                   (text "Criado por" 30 "Pale Green")
                   (text "João A. Jesus Jr." 25 "RoyalBlue")
                   (text "Vanderson M. do Rosario" 25 "OrangeRed"))

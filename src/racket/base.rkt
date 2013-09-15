@@ -148,10 +148,10 @@
 (define TIMEOUT-PADRAO 20)
 
 ;; Largura de um quadrado em pixels
-(define Q-LARGURA 20)
+(define Q-LARGURA 40)
 
 ;; Altura de um quadrado em pixels
-(define Q-ALTURA 20)
+(define Q-ALTURA 40)
 
 (define INIT-PONTUACAO 0)
 
