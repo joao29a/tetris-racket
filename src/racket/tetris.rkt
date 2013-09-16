@@ -9,8 +9,6 @@
 ;; Você não precisa se preocupar com ler a tecla pressionada ou desenhar o jogo
 ;; na tela. O arquivo main.rkt chama uma função que faz isso. Basta você
 ;; implementar as funções deste arquivo que o jogo funciona.
-;;
-;; Para ter uma ideia do processo de execução do jogo, execute o arquivo
 ;; main.rkt sem mudar nada neste arquivo. Uma janela irá aparecer. Pressione
 ;; algumas teclas e observe a saída no console do DrRacket. Veja o corpo
 ;; inicial das funções make-tetris-padrao, trata-tecla, trata-tick e desenha.
@@ -52,8 +50,8 @@
          nao-mexe-se-colidiu
          colidiu?
          rotacionar
-         mover-direto-para-baixo
-         criar-lista-tetraminos)
+         mover-direto-para-baixo)
+         ;;criar-lista-tetraminos)
 
 (define (estaJogando? jogo)
   (< (tetris-jogando? jogo) 0))
@@ -454,15 +452,17 @@
 ;; Esta função não precisa de testes.
 ;; Você tem que implementar esta função, o corpo incial deve ser descartado.
 (define (stream-tetraminos)
-  (criar-lista-tetraminos 10))
+  (define random-list (list-ref TETRAMINOS (random 7)))
+  (stream-cons random-list (stream-tetraminos)))
+	;(criar-lista-tetraminos 10))
 
-(define (criar-lista-tetraminos n)
-  (cond [(zero? n) empty-stream]
-        [else (stream-cons (list-ref TETRAMINOS (random 7))
-                           (criar-lista-tetraminos (sub1 n)))]))
+;;(define (criar-lista-tetraminos n)
+  ;;(cond [(zero? n) empty-stream]
+   ;;     [else (stream-cons (list-ref TETRAMINOS (random 7))
+    ;;                       (criar-lista-tetraminos (sub1 n)))]))
 
 (define (proximoTetra jogo) 
   (define proximos (tetris-proximos jogo))
   (struct-copy tetris jogo 
                [tetra (centraliza (stream-first proximos) LARGURA-PADRAO)]
-               [proximos (stream-append (stream-rest proximos) (criar-lista-tetraminos 1))]))
+               [proximos (stream-rest proximos)]))
