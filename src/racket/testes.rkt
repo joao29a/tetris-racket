@@ -349,13 +349,13 @@
    (check-true (> (tetris-pontuacao (pontuacao jogo 1)) (tetris-pontuacao jogo))) 
    (check-true (= (tetris-pontuacao (pontuacao jogo 0)) (tetris-pontuacao jogo))))) 
 
-(define prox (criar-lista-tetraminos 2))
+
 (define fixa-se-colidiu-tests
   (test-suite 
    "fixa-se-colidiu-tests"
-   (check-equal?  (tetris-campo (fixa-se-colidiu TT1_POS_BAIXO (tetris C1 C1_LARGURA C1_ALTURA TT1 prox TIMEOUT INIT-JOGO 
+   (check-equal?  (tetris-campo (fixa-se-colidiu TT1_POS_BAIXO (tetris C1 C1_LARGURA C1_ALTURA TT1 (stream-tetraminos) TIMEOUT INIT-JOGO 
                                INIT-PONTUACAO INIT-LEVEL INIT-LINHAS NOT-ACABOU)))
-                 (tetris-campo (tetris C1_FIXA_TT1 C1_LARGURA C1_ALTURA TT1 prox TIMEOUT INIT-JOGO 
+                 (tetris-campo (tetris C1_FIXA_TT1 C1_LARGURA C1_ALTURA TT1 (stream-tetraminos) TIMEOUT INIT-JOGO 
                          INIT-PONTUACAO INIT-LEVEL INIT-LINHAS NOT-ACABOU)))
    (check-equal?  (tetris-campo (fixa-se-colidiu TT1_POS_BAIXO (tetris C2 C1_LARGURA C1_ALTURA TT1 empty TIMEOUT INIT-JOGO 
                                INIT-PONTUACAO INIT-LEVEL INIT-LINHAS NOT-ACABOU)))
@@ -374,9 +374,9 @@
 (define mover-direto-para-baixo-tests
   (test-suite 
    "fixa-se-colidiu-tests"
-   (check-equal? (tetris-campo (fixa (mover-direto-para-baixo (tetris C2 C2_LARGURA C2_ALTURA TT1 prox TIMEOUT INIT-JOGO 
+   (check-equal? (tetris-campo (fixa (mover-direto-para-baixo (tetris C2 C2_LARGURA C2_ALTURA TT1 (stream-tetraminos) TIMEOUT INIT-JOGO 
                                INIT-PONTUACAO INIT-LEVEL INIT-LINHAS NOT-ACABOU))))  
-                 (tetris-campo (mover-direto-para-baixo (tetris C2_TT1 C2_LARGURA C2_ALTURA TT1 prox TIMEOUT INIT-JOGO 
+                 (tetris-campo (mover-direto-para-baixo (tetris C2_TT1 C2_LARGURA C2_ALTURA TT1 (stream-tetraminos) TIMEOUT INIT-JOGO 
                                INIT-PONTUACAO INIT-LEVEL INIT-LINHAS NOT-ACABOU))))))
 
 

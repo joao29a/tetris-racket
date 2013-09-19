@@ -50,8 +50,8 @@
          nao-mexe-se-colidiu
          colidiu?
          rotacionar
-         mover-direto-para-baixo)
-         ;;criar-lista-tetraminos)
+         mover-direto-para-baixo
+         stream-tetraminos)
 
 (define (estaJogando? jogo)
   (< (tetris-jogando? jogo) 0))
@@ -369,19 +369,10 @@
 ;; Requer que tetraminó não possa ser movido para baixo.
 (define (adicionar-tetramin-no-campo campo list-posn cor)
   (cond [(empty? list-posn) campo]
-        [else
-         (define lin (posn-lin (first list-posn)))
-         (define col (posn-col (first list-posn)))
-         (define first-campo (take campo lin))
-         (define rest-campo (drop campo lin))
-         (define first-line (take (first rest-campo) col))
-         (define rest-line (drop (first rest-campo) col))
-         (define novo-campo (append first-campo
-                                    (cons (append first-line
-                                                    (cons cor (rest rest-line)))
-                                            (rest rest-campo))))
-         (adicionar-tetramin-no-campo novo-campo (rest list-posn) cor)]))
-
+        [else 
+         (for/list ([linha campo] [i [in-naturals]])  
+           [for/list ([item linha] [j [in-naturals]]) 
+             (if (list? (member (posn i j) list-posn)) cor item)])]))
 
 (define (fixa jogo)
   (cond 
