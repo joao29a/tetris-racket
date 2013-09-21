@@ -445,12 +445,6 @@
 (define (stream-tetraminos)
   (define random-list (list-ref TETRAMINOS (random 7)))
   (stream-cons random-list (stream-tetraminos)))
-	;(criar-lista-tetraminos 10))
-
-;;(define (criar-lista-tetraminos n)
-  ;;(cond [(zero? n) empty-stream]
-   ;;     [else (stream-cons (list-ref TETRAMINOS (random 7))
-    ;;                       (criar-lista-tetraminos (sub1 n)))]))
 
 (define (proximoTetra jogo) 
   (define proximos (tetris-proximos jogo))
